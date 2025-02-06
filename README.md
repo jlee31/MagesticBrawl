@@ -2,6 +2,7 @@
 
 # Main Pygame Project
 My main pygame project that I am working on is Magestic Brawl. It is a knockoff version of Streetfighter. 
+There is still many updates to come. I am a little busy with school right now so more improvements are to come!
 
 # Install Requirements and Instructions
 
@@ -45,3 +46,7 @@ If this doesn’t work, the `Getting Started
 <https://www.pygame.org/wiki/GettingStarted/>`_ section of the official 
 website has more information for platform specific issues, such as adding
 python to your machine’s PATH settings
+
+
+## If you want to try the game yourself
+You can either clone this repo or download the folder titled "Majestic Brawl"
