@@ -1,8 +1,7 @@
 # MagesticBrawl
 
 # Main Pygame Project
-My main pygame project that I am working on is Magestic Brawl. It is a knockoff version of Streetfighter. 
-There is still many updates to come. I am a little busy with school right now so more improvements are to come!
+Restarting this project
 
 # Install Requirements and Instructions
 
