@@ -21,6 +21,7 @@ class Game:
   
 			dt = self.clock.tick() / 1000
 			self.level.drawBg()
+			self.level.drawGround()
 			self.level.run(dt)
 			pygame.display.update()
 			

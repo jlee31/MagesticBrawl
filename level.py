@@ -16,6 +16,10 @@ class Level:
         self.bgWidth = self.bgImages[0].get_width()
         self.scroll = 0
 
+        self.ground_image = pygame.image.load(f'assets/images/background/ground.png').convert_alpha()
+        self.ground_width = self.ground_image.get_width()
+        self.ground_height = self.ground_image.get_height()
+
 
     def run(self, dt):
         pass
@@ -27,6 +31,10 @@ class Level:
             for i in self.bgImages:
                 self.display_surface.blit(i, ((x * self.bgWidth) - self.scroll * speed, 0))
                 speed += 0.05
+
+    def drawGround(self):
+        for x in range(15):
+            self.display_surface.blit(self.ground_image, ((x * self.ground_width - self.scroll * 2), SCREEN_HEIGHT - self.ground_height))
 
     def moveScreen(self):
         key = pygame.key.get_pressed()
