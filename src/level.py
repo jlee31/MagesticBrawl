@@ -38,10 +38,16 @@ class Level:
 
     def moveScreen(self):
         key = pygame.key.get_pressed()
-        if key[pygame.K_LEFT]:
+        if key[pygame.K_LEFT] and self.scroll > 0:
             self.scroll -= 2
-        if key[pygame.K_RIGHT]:
+        if key[pygame.K_RIGHT] and self.scroll < 1000:
             self.scroll += 2
+
+    def lockScreen(self):
+        if self.scroll < 0:
+            self.scroll = 0
+        if self.scroll > 1000:
+            self.scroll = 0
                
     def drawHealthBar(self):
         pass
