@@ -1,6 +1,6 @@
 import pygame 
-from settings import *
-from player import *
+from src.settings import *
+from src.player import *
 
 class Level:
     def __init__(self):
