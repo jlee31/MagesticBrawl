@@ -20,7 +20,7 @@ class Level:
         self.ground_width = self.ground_image.get_width()
         self.ground_height = self.ground_image.get_height()
 
-
+    
     def run(self, dt):
         pass
 
@@ -46,7 +46,6 @@ class Level:
     def drawHealthBar(self):
         pass
     
-
     def drawText(self):
         pass
 
