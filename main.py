@@ -12,7 +12,7 @@ class Game:
 
 	def run(self):
 		while True:
-			self.level.moveScreen()
+			# self.level.moveScreen()
 
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
