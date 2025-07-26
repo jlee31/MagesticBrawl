@@ -1,6 +1,6 @@
 import pygame
-from settings import *
-from playerData import *
+from src.settings import *
+from src.playerData import *
 
 class Fighter:
     def __init__(self, player, x, y, flip, data, sprite_sheet, animation_steps, sound):
@@ -31,9 +31,7 @@ class Fighter:
         self.rect = self.image.get_rect(center = (x, y))
         self.direction = pygame.math.Vector2()
         self.position = pygame.math.Vector2(self.rect.center)
-    
-        
-
+       
     def loadImages(self, sprite_sheet, sprite_animation_sheet):
         animation_list = []
         for y, animation in enumerate(sprite_animation_sheet):
@@ -118,7 +116,6 @@ class Fighter:
         # Update player position
         self.rect.x += dx
         self.rect.y += dy
-
 
     def update(self):
         pass
