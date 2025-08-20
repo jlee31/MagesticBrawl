@@ -20,9 +20,16 @@ class Level:
         self.ground_width = self.ground_image.get_width()
         self.ground_height = self.ground_image.get_height()
 
+        # Players
+        self.fighter_1 = Fighter2(200,280)
+        self.fighter_2 = Fighter2(400,280)
+
     
     def run(self, dt):
-        pass
+        self.fighter_1.move()
+        self.fighter_2.move()
+        self.fighter_1.draw(self.display_surface)
+        self.fighter_2.draw(self.display_surface)
 
     def drawBg(self):
         

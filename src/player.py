@@ -31,7 +31,7 @@ class Fighter:
         self.rect = self.image.get_rect(center = (x, y))
         self.direction = pygame.math.Vector2()
         self.position = pygame.math.Vector2(self.rect.center)
-       
+
     def loadImages(self, sprite_sheet, sprite_animation_sheet):
         animation_list = []
         for y, animation in enumerate(sprite_animation_sheet):
@@ -129,3 +129,51 @@ class Fighter:
     def draw(self, surface):
         img = pygame.transform.flip(self.image, self.flip, False)
         surface.blit(img, (self.rect.x - (self.offset[0] * self.image_scale), self.rect.y - (self.offset[1] * self.image_scale)))
+
+class Fighter2():
+    def __init__(self, start_x, start_y):
+        self.rect = pygame.Rect((start_x,start_y,80,180))
+        self.vel_y = 0
+        self.is_jumping = False
+    
+    def move(self):
+        SPEED = 10
+        GRAVITY = 2
+        dx = 0
+        dy = 0
+
+        # Keypresses
+
+        key = pygame.key.get_pressed()
+
+        if key[pygame.K_a]:
+            dx = -SPEED
+        if key[pygame.K_d]:
+            dx = SPEED
+        if not self.is_jumping:
+            if key[pygame.K_w]:
+                self.vel_y = -30
+            self.is_jumping = True
+        
+        # Applying Vertical Movement / Gravity
+        self.vel_y += GRAVITY
+        dy += self.vel_y
+
+        if key[pygame.K_j]:
+            dx = -SPEED
+        if key[pygame.K_l]:
+            dx = SPEED
+
+        # Staying on the screen
+
+        if self.rect.bottom + dy > SCREEN_HEIGHT - 45:
+            self.vel_y = 0
+            dy = SCREEN_HEIGHT - 45 - self.rect.bottom
+            self.is_jumping = False
+
+        # Update Position
+        self.rect.x += dx
+        self.rect.y += dy
+
+    def draw(self, surface):
+        pygame.draw.rect(surface, (255,0,0), self.rect)
