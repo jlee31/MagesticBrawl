@@ -9,9 +9,11 @@ class Game:
 		pygame.display.set_caption('Magestic Brawl')
 		self.clock = pygame.time.Clock()
 		self.level = Level()
+		self.FPS = 60
 
 	def run(self):
 		while True:
+			self.clock.tick(self.FPS)
 			self.level.moveScreen()
 
 			for event in pygame.event.get():
