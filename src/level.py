@@ -1,6 +1,7 @@
 import pygame 
 from src.settings import *
 from src.player import *
+from src.particles import spawn_exploding_particles
 
 YELLOW = (255,255,0)
 RED = (255,0,0)
@@ -39,6 +40,10 @@ class Level:
         self.fighter_1 = Fighter2(1, 200,280, False, WARRIOR_DATA, self.warrior_sheet, self.warrior_animation_steps)
         self.fighter_2 = Fighter2(2, 400,280, True, SORCERER_DATA, self.sorcerer_sheet, self.sorcerer_animation_steps)
    
+        
+
+
+
     def run(self, dt):
         self.fighter_1.move(target=self.fighter_2)
         self.fighter_2.move(target=self.fighter_1)
@@ -47,6 +52,10 @@ class Level:
         
         self.fighter_1.draw(self.display_surface)
         self.fighter_2.draw(self.display_surface)
+
+        # Draw particles (draw them after fighters so they appear on top)
+        self.fighter_1.particle_group.draw(self.display_surface)
+        self.fighter_2.particle_group.draw(self.display_surface)
 
         # Player Stats
         self.drawHealthBar(self.fighter_1.health, 20, 20)

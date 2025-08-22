@@ -10,6 +10,7 @@ class Game:
 		self.clock = pygame.time.Clock()
 		self.level = Level()
 		self.FPS = 60
+		self.dt = self.clock.tick(60) / 1000.0
 
 	def run(self):
 		while True:
@@ -24,7 +25,7 @@ class Game:
 			dt = self.clock.tick() / 1000
 			self.level.drawBg()
 			self.level.drawGround()
-			self.level.run(dt)
+			self.level.run(self.dt)
 			# self.level.drawText()
 			pygame.display.update()
 			
