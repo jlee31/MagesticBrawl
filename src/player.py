@@ -1,7 +1,8 @@
 import pygame
 from src.settings import *
 from src.playerData import *
-
+from src.particles import * 
+from random import randint 
 class Fighter2():
     def __init__(self, player, start_x, start_y, flip, data, sprite_sheet, sprite_animation_sheet):
         # Player Creation
@@ -51,6 +52,12 @@ class Fighter2():
         # Attack hit tracking - NEW: Track which attacks have already hit
         self.current_attack_id = 0  # Unique ID for each attack
         self.attack_hit_targets = set()  # Set of targets hit by current attack
+
+        # Effects
+        self.clock = pygame.time.Clock()
+        self.particle_group = pygame.sprite.Group()
+        self.floating_particle_timer = pygame.event.custom_type()
+        pygame.time.set_timer(self.floating_particle_timer, 10)
     
     def loadImages(self, sprite_sheet, sprite_animation_sheet):
         animation_list = []
@@ -131,7 +138,6 @@ class Fighter2():
         self.rect.x += dx
         self.rect.y += dy
        
-
     def attack(self, surface, target):
         # Only allow attack if not already attacking and cooldown is ready
         if self.attack_cooldown == 0 and not self.attacking:
@@ -169,18 +175,19 @@ class Fighter2():
             target_draw_y = target.rect.y - (target.offset[1] * target.image_scale)
             
             # Check if the attacking rectangle overlaps with the target mask
-            if self._rectOverlapsMask(attacking_rect, target_mask, target_draw_x, target_draw_y):
+            hit_point = self._rectOverlapsMask(attacking_rect, target_mask, target_draw_x, target_draw_y)
+            if hit_point:
                 # Check if this target has already been hit by the current attack
                 target_id = id(target)
                 if target_id not in self.attack_hit_targets:
                     # Hit occurred! Deal damage and set hit state
                     target.health -= 10
                     target.is_hit = True
+                    spawn_exploding_particles(n=1000, particle_group=self.particle_group, pos=hit_point)
                     print("HIT")
                     # Mark this target as hit by the current attack
                     self.attack_hit_targets.add(target_id)
 
-    
     def takeDamage(self):
         self.health -= 10
                 
@@ -293,43 +300,5 @@ class Fighter2():
         collision_point = mask.overlap(attack_mask, (offset_x, offset_y))
         
         # Return True if there was a collision, False otherwise
-        return collision_point is not None
+        return collision_point
 
-'''
-HIT ANIMATION CALL STACK:
-
-1. ATTACK TRIGGERED:
-   - Player presses attack key (R/T for Player 1, O/P for Player 2)
-   - move() method calls attack() method
-   - attack() sets self.attacking = True and self.attack_type = 1 or 2
-
-2. ATTACK ANIMATION STARTS:
-   - updateAction() detects self.attacking = True
-   - Calls update_action(3) for Attack 1 or update_action(4) for Attack 2
-   - Animation changes to attack pose (action 3 or 4)
-
-3. COLLISION DETECTION (EVERY FRAME):
-   - level.py run() method calls checkAttackCollision() every frame
-   - checkAttackCollision() checks if masks overlap
-   - If collision occurs: target.health -= 10 and target.is_hit = True
-
-4. HIT ANIMATION TRIGGERED:
-   - Target's updateAction() detects self.is_hit = True
-   - Calls update_action(5) to start hit animation
-   - Animation changes to hit pose (action 5)
-
-5. HIT ANIMATION PLAYS:
-   - updateFrame() shows hit animation frames
-   - handleAnimationComplete() waits for hit animation to finish
-
-6. HIT ANIMATION ENDS:
-   - When frame_index reaches end of hit animation
-   - handleAnimationComplete() sets self.is_hit = False
-   - Character returns to normal state (idle, run, etc.)
-
-KEY FUNCTIONS IN ORDER:
-   move() → attack() → updateAction() → update_action(3/4) → 
-   checkAttackCollision() → target.is_hit = True → 
-   target.updateAction() → target.update_action(5) → 
-   target.handleAnimationComplete() → target.is_hit = False
-'''
