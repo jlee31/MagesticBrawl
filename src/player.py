@@ -15,6 +15,11 @@ class Fighter2():
         self.size = data[0]
         self.image_scale = data[1]
         self.offset = data[2]
+        self.player_speed = data[3]
+        self.player_jump_height = data[4]
+        self.attack_one_data = data[5]
+        self.attack_two_data = data[6]
+        self.attack_one_offset = data[7]
         
         # Animation system
         self.animation_list = self.loadImages(sprite_sheet, sprite_animation_sheet)
@@ -126,6 +131,7 @@ class Fighter2():
         self.rect.x += dx
         self.rect.y += dy
        
+
     def attack(self, surface, target):
         # Only allow attack if not already attacking and cooldown is ready
         if self.attack_cooldown == 0 and not self.attacking:
@@ -133,19 +139,37 @@ class Fighter2():
             # Set a short cooldown to prevent immediate re-attack
             self.attack_cooldown = 50
             
-            # NEW: Generate new attack ID and reset hit tracking
+            # Generate new attack ID and reset hit tracking
             self.current_attack_id += 1
             self.attack_hit_targets.clear()
 
         # Create attack hitbox rectangle
-        attacking_rect = pygame.Rect(self.rect.centerx - (2 * self.rect.width * self.flip), self.rect.y, 2 * self.rect.width, self.rect.height)
+        if self.attack_type == 1:
+            attack_data = self.attack_one_data
+        elif self.attack_type == 2:
+            attack_data = self.attack_two_data
+        else:
+            return  # No valid attack type
+       
+        attacking_rect = pygame.Rect(
+                self.rect.centerx - (2 * self.rect.width * self.flip + self.attack_one_offset[0]),  
+                self.rect.y - self.attack_one_offset[1],
+                attack_data[0],
+                attack_data[1]
+        )
 
-        # Get target mask
+        # Debug: Draw attack hitbox
+        pygame.draw.rect(surface, (255, 0, 0), attacking_rect, 2)
+        
+        # Get target mask and position
         target_mask = target.getMask()
-
         if target_mask:
+            # Calculate target's actual position on screen (accounting for offset)
+            target_draw_x = target.rect.x - (target.offset[0] * target.image_scale)
+            target_draw_y = target.rect.y - (target.offset[1] * target.image_scale)
+            
             # Check if the attacking rectangle overlaps with the target mask
-            if self._rectOverlapsMask(attacking_rect, target_mask, target.rect.x, target.rect.y):
+            if self._rectOverlapsMask(attacking_rect, target_mask, target_draw_x, target_draw_y):
                 # Check if this target has already been hit by the current attack
                 target_id = id(target)
                 if target_id not in self.attack_hit_targets:
@@ -155,6 +179,7 @@ class Fighter2():
                     print("HIT")
                     # Mark this target as hit by the current attack
                     self.attack_hit_targets.add(target_id)
+
     
     def takeDamage(self):
         self.health -= 10
@@ -254,30 +279,21 @@ class Fighter2():
 
     def _rectOverlapsMask(self, rect, mask, mask_x, mask_y):
         """
-        Check if a rectangle overlaps with a mask
-        This is a simple collision check between rect and mask
+        FIXED: Proper collision check between rectangle and mask
         """
-        # Get the mask's bounding rectangle
-        mask_rect = pygame.Rect(mask_x, mask_y, mask.get_size()[0], mask.get_size()[1])
+        # Create a mask from the attacking rectangle
+        attack_mask = pygame.mask.Mask((rect.width, rect.height))
+        attack_mask.fill()  # Fill the entire attack mask
         
-        # First check if rectangles overlap (fast check)
-        if not rect.colliderect(mask_rect):
-            return False
+        # Calculate offset between attack rect and target mask
+        offset_x = rect.x - mask_x
+        offset_y = rect.y - mask_y
         
-        # If rectangles overlap, check if any pixels in the rect area are solid in the mask
-        # Calculate the overlap area
-        overlap_left = max(rect.left, mask_rect.left)
-        overlap_top = max(rect.top, mask_rect.top)
-        overlap_right = min(rect.right, mask_rect.right)
-        overlap_bottom = min(rect.bottom, mask_rect.bottom)
+        # Use pygame's built-in mask collision detection
+        collision_point = mask.overlap(attack_mask, (offset_x, offset_y))
         
-        # Check if there's any overlap
-        if overlap_left >= overlap_right or overlap_top >= overlap_bottom:
-            return False
-        
-        # For simplicity, if rectangles overlap, consider it a hit
-        # This is a basic collision - you can make it more precise if needed
-        return True
+        # Return True if there was a collision, False otherwise
+        return collision_point is not None
 
 '''
 HIT ANIMATION CALL STACK:
