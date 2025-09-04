@@ -26,7 +26,6 @@ class Game:
 			self.level.drawBg()
 			self.level.drawGround()
 			self.level.run(self.dt)
-			# self.level.drawText()
 			pygame.display.update()
 			
 if __name__ == '__main__':
