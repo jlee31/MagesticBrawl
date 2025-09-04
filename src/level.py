@@ -16,11 +16,11 @@ class Level:
         self.game_states = ["main_screen", "pause", "loading", "fighting", "settings"]
         self.game_state = self.game_states[0]
 
-        self.intro_count = 3
+        self.intro_count = 4
         self.last_count_update = pygame.time.get_ticks()
         self.score = [0,0]
         self.round_complete = False
-        self.round_over_cooldown = 2000
+        self.round_over_cooldown = 5000
     
 
         self.countdown_font = pygame.font.Font("assets/fonts/turok.ttf", 80)
@@ -54,6 +54,7 @@ class Level:
         # Images
         # Victory Image (will change later)
         self.victory_image = pygame.image.load("assets/images/victory.png").convert_alpha()
+        self.victory_width = self.victory_image.get_width()
 
         # Players
         self.fighter_1 = Fighter2(1, 200, 280, False, WARRIOR_DATA, self.warrior_sheet, self.warrior_animation_steps)
@@ -102,7 +103,7 @@ class Level:
             else:
                 # Only move fighters when countdown is done
                 self.fighter_1.move(target=self.fighter_2)
-                self.fighter_2.move(target=self.fighter_2)
+                self.fighter_2.move(target=self.fighter_1)
 
         # Draw health bars last (on top of everything)
         self.drawHealthBar(self.fighter_1.health, 20, 20)
@@ -120,7 +121,8 @@ class Level:
                 self.round_over_time = pygame.time.get_ticks()
         else:
             # Display Victory Image
-            self.display_surface.blit(self.victory_image, (500, 250))
+            
+            self.display_surface.blit(self.victory_image, (int(SCREEN_WIDTH / 2 - self.victory_width / 2), 250))
             if pygame.time.get_ticks() - self.round_over_time > self.round_over_cooldown:
                 self.round_complete = False
                 self.intro_count = 3
