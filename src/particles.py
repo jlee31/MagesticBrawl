@@ -6,8 +6,6 @@ from src.settings import *
 
 pygame.init()
 
-
-
 class Particle(pygame.sprite.Sprite):
     def __init__(self,
                  groups: pygame.sprite.Group,
@@ -59,7 +57,6 @@ class Particle(pygame.sprite.Sprite):
         self.check_pos()
         self.check_alpha()
 
-
 class ExplodingParticle(Particle):
     def __init__(self,
                  groups: pygame.sprite.Group,
@@ -101,7 +98,6 @@ class ExplodingParticle(Particle):
         self.check_size()
         self.check_alpha()
 
-
 class FloatingParticle(Particle):
     def __init__(self,
                  groups: pygame.sprite.Group,
@@ -111,8 +107,6 @@ class FloatingParticle(Particle):
                  speed: int):
         super().__init__(groups, pos, color, direction, speed)
 
-
-
 def spawn_particles(n, particle_group):
     for _ in range(n):
         pos = pygame.mouse.get_pos()
@@ -121,7 +115,6 @@ def spawn_particles(n, particle_group):
         direction = direction.normalize()
         speed = randint(50, 400)
         Particle(particle_group, pos, color, direction, speed)
-
 
 def spawn_exploding_particles(n, particle_group, pos):
     for _ in range(n):

@@ -165,7 +165,7 @@ class Fighter2():
         )
 
         # Debug: Draw attack hitbox
-        pygame.draw.rect(surface, (255, 0, 0), attacking_rect, 2)
+        # pygame.draw.rect(surface, (255, 0, 0), attacking_rect, 2)
         
         # Get target mask and position
         target_mask = target.getMask()
@@ -183,7 +183,7 @@ class Fighter2():
                     # Hit occurred! Deal damage and set hit state
                     target.health -= 10
                     target.is_hit = True
-                    spawn_exploding_particles(n=1000, particle_group=self.particle_group, pos=hit_point)
+                    # spawn_exploding_particles(n=1000, particle_group=self.particle_group, pos=hit_point)
                     print("HIT")
                     # Mark this target as hit by the current attack
                     self.attack_hit_targets.add(target_id)
@@ -198,7 +198,7 @@ class Fighter2():
         surface.blit(img, (draw_x, draw_y))
         
         # Draw hitbox (for debugging)
-        pygame.draw.rect(surface, (255, 255, 255), self.rect, 2)
+        # pygame.draw.rect(surface, (255, 255, 255), self.rect, 2)
         
         # Draw Mask
         if self.mask_image:
@@ -278,7 +278,7 @@ class Fighter2():
             # Create mask from current frame image
             self.player_mask = pygame.mask.from_surface(self.image)
             # Create a surface representation of the mask (useful for debugging)
-            self.mask_image = self.player_mask.to_surface(setcolor=(255, 0, 0, 128), unsetcolor=(0, 0, 0, 0))
+            # self.mask_image = self.player_mask.to_surface(setcolor=(255, 0, 0, 128), unsetcolor=(0, 0, 0, 0))
     
     def getMask(self):
         """Get the current collision mask"""
