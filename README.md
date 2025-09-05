@@ -2,7 +2,7 @@
 
 streetfighter clone written in python. features sprite sheet rendering for efficient memory usage, sprite animation optimisation and background caching for smoother gameplay.
 
-![Game Preview](assets/demo/ScreenRecording2025-08-20110758-ezgif.com-video-to-gif-converter.gif)
+![Game Preview](assets/demo/demoMB)
 
 ## if you want to try it out 
 
@@ -31,8 +31,8 @@ python main.py
 - **Attack**: R/T (Light/Heavy)
 
 ### player 2 (Sorcerer)
-- **Movement**: Arrow Keys (Left/Right)
-- **Jump**: Up Arrow
+- **Movement**: J/L (Left/Right)
+- **Jump**: I
 - **Attack**: O/P (Light/Heavy)
 
 ### other controls
