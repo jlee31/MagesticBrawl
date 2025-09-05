@@ -12,7 +12,7 @@ planned additions:
 
 maybe
 
-- score counter
+- score counter (DONE)
 
 
 IN ORDER:
@@ -21,7 +21,7 @@ IN ORDER:
 3) add homescreen + menu + countdown (DONE)
 4) ability to play other characters (To-Do)
 
-
+- added sounds
 
 HIT ANIMATION CALL STACK:
 
