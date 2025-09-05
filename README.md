@@ -1,19 +1,45 @@
 # MagesticBrawl
 
-# Main Pygame Project
-Restarting this project
+streetfighter clone written in python. features sprite sheet rendering for efficient memory usage, sprite animation optimisation and background caching for smoother gameplay.
 
-# Install Requirements and Instructions
+![Game Preview](assets/demo/ScreenRecording2025-08-20110758-ezgif.com-video-to-gif-converter.gif)
 
-run 
+## if you want to try it out 
 
-```
+### requirements
+- Python 3.7+
+- Pygame-CE (Community Edition)
+
+### Installation
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/majestic-brawl.git
+cd majestic-brawl
+
+# Install dependencies
 pip install pygame-ce
-```
-run the game via
-```
+
+# Run the game
 python main.py
 ```
 
-## If you want to try the game yourself
-You can either clone this repo or download the folder titled "Majestic Brawl"
+## controls
+
+### player 1 (Warrior)
+- **Movement**: A/D (Left/Right)
+- **Jump**: W
+- **Attack**: R/T (Light/Heavy)
+
+### player 2 (Sorcerer)
+- **Movement**: Arrow Keys (Left/Right)
+- **Jump**: Up Arrow
+- **Attack**: O/P (Light/Heavy)
+
+### other controls
+- **Pause**: Escape
+- **Background Control**: Left/Right Arrow Keys
+- **Auto-scroll Toggle**: Y Key
+
+### future plans
+
+i plan to add more characters to the game, improve settings and use it for future projects

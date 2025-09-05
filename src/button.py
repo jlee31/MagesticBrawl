@@ -1,3 +1,6 @@
+# DISCLAIMER: THIS IS NOT MY ORIGINAL CODE
+# comes from https://www.youtube.com/watch?v=8SzTzvrWaAA&ab_channel=ClearCode
+# i just edited it a bit
 import pygame
 gui_font = pygame.font.Font("assets/fonts/turok.ttf",30)
 class Button:
