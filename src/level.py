@@ -2,6 +2,46 @@ import pygame, sys
 from src.settings import *
 from src.player import *
 from src.particles import spawn_exploding_particles
+from src.button import Button
+
+# Custom button classes that handle game state changes
+class PlayButton(Button):
+    def handle_button_action(self, game_state):
+        if game_state == "main_screen":
+            print("Starting game...")
+            self.level.game_state = "fighting"
+            self.level.playing = True
+            self.level.intro_count = 3
+            self.level.last_count_update = pygame.time.get_ticks()
+
+class ResumeButton(Button):
+    def handle_button_action(self, game_state):
+        if game_state == "pause":
+            print("Resuming game...")
+            self.level.game_state = "fighting"
+            self.level.playing = True
+
+class SettingsButton(Button):
+    def handle_button_action(self, game_state):
+        if game_state == "main_screen" or game_state == "pause":
+            print("Opening settings...")
+            self.level.game_state = "settings"
+
+class BackButton(Button):
+    def handle_button_action(self, game_state):
+        if game_state == "settings":
+            print("Going back...")
+            self.level.game_state = "main_screen"
+
+class ExitButton(Button):
+    def handle_button_action(self, game_state):
+        print("Exiting...")
+        pygame.quit()
+        sys.exit()
+
+class VolumeButton(Button):
+    def handle_button_action(self, game_state):
+        print("Volume clicked")
 
 YELLOW = (255,255,0)
 RED = (255,0,0)
@@ -66,11 +106,27 @@ class Level:
         self.fighter_1 = Fighter2(1, 200, 280, False, WARRIOR_DATA, self.warrior_sheet, self.warrior_animation_steps)
         self.fighter_2 = Fighter2(2, 700, 280, True, SORCERER_DATA, self.sorcerer_sheet, self.sorcerer_animation_steps)
    
+        # buttons - using custom button classes that handle game state changes
+        middle = SCREEN_WIDTH / 2 - 100
+        self.play_btn = PlayButton("Start", 200, 40, (middle,200), 5)
+        self.pause_btn = ResumeButton("Resume", 200, 40, (middle,200), 5)
+        self.settings_btn = SettingsButton("Settings", 200, 40, (middle,280), 5)
+        self.exit_btn = ExitButton("Quit", 200, 40, (middle,360), 5)
+        self.volume_btn = VolumeButton("Volume", 200, 40, (middle,280), 5)
+        self.back_btn = BackButton("Back", 200, 40, (middle,200), 5)
+        
+        # Set level reference for all buttons
+        for btn in [self.play_btn, self.pause_btn, self.settings_btn, self.exit_btn, self.volume_btn, self.back_btn]:
+            btn.level = self
+
         
     def run(self, dt):
-        # Handle pause key (Escape)
+        # Handle all events in one place
         for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     if self.game_state == "fighting":
                         self.game_state = "pause"
@@ -147,25 +203,25 @@ class Level:
             self.playing = True
             self.draw_text(f'{self.score[0]} : {self.score[1]}', self.score_font, (255,0,0), 480, 20)
 
-    
     def home_screen(self):
         self.display_surface.fill((255,255,255))
-        self.draw_text("Magestic Brawl", self.menu_font, (0,0,0), 130, 20)
-        self.menu_buttons(state=self.game_state)
+        self.draw_text("Magestic Brawl", self.menu_font, (0,0,0), 150, 20)
+        self.new_menu_buttons(state=self.game_state)
 
     def pause_menu(self):
-        self.menu_buttons(state=self.game_state)
+        self.new_menu_buttons(state=self.game_state)
 
     def settings_menu(self):
         self.display_surface.fill((255,255,255))
-        self.draw_text("Settings", self.menu_font, (0,0,0), 130, 20)
-        self.menu_buttons(state=self.game_state)
+        self.draw_text("Settings", self.menu_font, (0,0,0), SCREEN_WIDTH / 2 - 200, 20)
+        self.new_menu_buttons(state=self.game_state)
 
-    def menu_buttons(self, state):
+    def old_menu_buttons(self, state):
         mx, my = pygame.mouse.get_pos()
         play_btn = pygame.Rect(SCREEN_WIDTH / 2 - 100, 150, 200, 50)
         settings_btn = pygame.Rect(SCREEN_WIDTH / 2 - 100 , 250, 200, 50)
         exit_btn = pygame.Rect(SCREEN_WIDTH / 2 - 100, 350, 200, 50)
+        
 
         if state == "main_screen" or state == "pause":
             pygame.draw.rect(self.display_surface, (255,0,0), play_btn, width=2, border_radius=2)
@@ -229,7 +285,23 @@ class Level:
                             print("exiting")
                             pygame.quit()
                             sys.exit() 				
-                
+
+    def new_menu_buttons(self, state):
+        if state == "main_screen" or state == "pause":
+            if state == "main_screen":
+                self.play_btn.draw(self.display_surface, self.game_state)
+                self.settings_btn.draw(self.display_surface, self.game_state)
+                self.exit_btn.draw(self.display_surface, self.game_state)
+            if state == "pause":
+                self.pause_btn.draw(self.display_surface, self.game_state)
+                self.settings_btn.draw(self.display_surface, self.game_state)
+                self.exit_btn.draw(self.display_surface, self.game_state)
+        elif state == "settings":
+            self.back_btn.draw(self.display_surface, self.game_state)
+            self.volume_btn.draw(self.display_surface, self.game_state)
+            self.exit_btn.draw(self.display_surface, self.game_state)
+
+
     def drawBg(self):
         for x in range(10):
             speed = 1

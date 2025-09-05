@@ -16,11 +16,6 @@ class Game:
 		while True:
 			self.clock.tick(self.FPS)
 			self.level.moveScreen()
-
-			for event in pygame.event.get():
-				if event.type == pygame.QUIT:
-					pygame.quit()
-					sys.exit()
   
 			dt = self.clock.tick() / 1000
 			self.level.drawBg()
