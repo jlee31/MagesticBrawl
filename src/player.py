@@ -58,6 +58,10 @@ class Fighter2():
         self.particle_group = pygame.sprite.Group()
         self.floating_particle_timer = pygame.event.custom_type()
         pygame.time.set_timer(self.floating_particle_timer, 10)
+
+        # music / audio
+        self.sword_swing = pygame.mixer.Sound("assets/audio/sword_swing.wav")
+        self.magic_swing = pygame.mixer.Sound("assets/audio/magic_swing.mp3")
     
     def loadImages(self, sprite_sheet, sprite_animation_sheet):
         animation_list = []
@@ -144,6 +148,10 @@ class Fighter2():
             self.attacking = True
             # Set a short cooldown to prevent immediate re-attack
             self.attack_cooldown = 50
+            if self.player == 1:
+                self.sword_swing.play()
+            else:
+                self.magic_swing.play()
             
             # Generate new attack ID and reset hit tracking
             self.current_attack_id += 1

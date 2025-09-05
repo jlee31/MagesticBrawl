@@ -56,6 +56,12 @@ class Level:
         self.victory_image = pygame.image.load("assets/images/victory.png").convert_alpha()
         self.victory_width = self.victory_image.get_width()
 
+        # music / audio
+
+        pygame.mixer.music.load("assets/audio/bg_music.mp3")
+        pygame.mixer.music.play(loops=-1)   
+        pygame.mixer.music.set_volume(0.3)  
+
         # Players
         self.fighter_1 = Fighter2(1, 200, 280, False, WARRIOR_DATA, self.warrior_sheet, self.warrior_animation_steps)
         self.fighter_2 = Fighter2(2, 700, 280, True, SORCERER_DATA, self.sorcerer_sheet, self.sorcerer_animation_steps)
@@ -225,7 +231,7 @@ class Level:
                             sys.exit() 				
                 
     def drawBg(self):
-        for x in range(3):
+        for x in range(10):
             speed = 1
             for i in self.bgImages:
                 self.display_surface.blit(i, ((x * self.bgWidth) - self.scroll * speed, 0))
