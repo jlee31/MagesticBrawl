@@ -2,7 +2,7 @@
 
 streetfighter clone written in python. features sprite sheet rendering for efficient memory usage, sprite animation optimisation and background caching for smoother gameplay.
 
-![Game Preview](assets/demo/demoMB)
+![Game Preview](assets/demo/demoMB.gif)
 
 ## if you want to try it out 
 
