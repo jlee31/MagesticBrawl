@@ -1,7 +1,7 @@
 import pygame, sys
 from src.settings import *
 from src.player import *
-from src.particles import spawn_exploding_particles
+from src.particles import *
 from src.button import Button
 
 # Custom button classes that handle game state changes
@@ -119,7 +119,9 @@ class Level:
         for btn in [self.play_btn, self.pause_btn, self.settings_btn, self.exit_btn, self.volume_btn, self.back_btn]:
             btn.level = self
 
-        
+        # Sprite Groups
+        self.particle_group = pygame.sprite.Group()
+       
     def run(self, dt):
         # Handle all events in one place
         for event in pygame.event.get():
@@ -149,6 +151,9 @@ class Level:
         # Draw particles (draw them after fighters so they appear on top)
         self.fighter_1.particle_group.draw(self.display_surface)
         self.fighter_2.particle_group.draw(self.display_surface)
+        self.fighter_1.particle_group.update(dt)
+        self.fighter_2.particle_group.update(dt)
+
 
         # Draw countdown if needed
         if self.playing:
@@ -190,7 +195,7 @@ class Level:
                 self.intro_count = 3
                 self.fighter_1 = Fighter2(1, 200, 280, False, WARRIOR_DATA, self.warrior_sheet, self.warrior_animation_steps)
                 self.fighter_2 = Fighter2(2, 700, 280, True, SORCERER_DATA, self.sorcerer_sheet, self.sorcerer_animation_steps)
-   
+
         # Menu / Options
         if self.game_state == "main_screen":
             self.home_screen()
@@ -300,7 +305,6 @@ class Level:
             self.back_btn.draw(self.display_surface, self.game_state)
             self.volume_btn.draw(self.display_surface, self.game_state)
             self.exit_btn.draw(self.display_surface, self.game_state)
-
 
     def drawBg(self):
         for x in range(10):

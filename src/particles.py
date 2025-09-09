@@ -3,18 +3,22 @@
 import pygame
 from random import choice, randint, uniform
 from src.settings import *
-
 pygame.init()
+display_surface = pygame.display.get_surface()
+clock = pygame.time.Clock()
+particle_group = pygame.sprite.Group()
+floating_particle_timer = pygame.event.custom_type()
+pygame.time.set_timer(floating_particle_timer, 10)
 
 class Particle(pygame.sprite.Sprite):
     def __init__(self,
                  groups: pygame.sprite.Group,
                  pos: list[int],
-                 color: str,
+                 color: tuple,
                  direction: pygame.math.Vector2,
                  speed: int):
         super().__init__(groups)
-        self.pos = pos
+        self.pos = pygame.math.Vector2(pos)
         self.color = color
         self.direction = direction
         self.speed = speed
@@ -28,11 +32,11 @@ class Particle(pygame.sprite.Sprite):
         self.image = pygame.Surface((self.size, self.size)).convert_alpha()
         self.image.set_colorkey("black")
         pygame.draw.circle(surface=self.image, color=self.color, center=(self.size / 2, self.size / 2), radius=self.size / 2)
-        self.rect = self.image.get_rect(center=self.pos)
+        self.rect = self.image.get_rect(center=(self.pos.x, self.pos.y))
 
     def move(self, dt):
         self.pos += self.direction * self.speed * dt
-        self.rect.center = self.pos
+        self.rect.center = (self.pos.x, self.pos.y)
 
     def fade(self, dt):
         self.alpha -= self.fade_speed * dt
@@ -40,10 +44,10 @@ class Particle(pygame.sprite.Sprite):
 
     def check_pos(self):
         if (
-            self.pos[0] < -50 or
-            self.pos[0] > SCREEN_WIDTH + 50 or
-            self.pos[1] < -50 or
-            self.pos[1] > SCREEN_HEIGHT + 50
+            self.pos.x < -50 or
+            self.pos.x > SCREEN_WIDTH + 50 or
+            self.pos.y < -50 or
+            self.pos.y > SCREEN_HEIGHT + 50
         ):
             self.kill()
 
@@ -68,10 +72,10 @@ class ExplodingParticle(Particle):
         self.t0 = pygame.time.get_ticks()
         self.lifetime = randint(1000, 1200)
         self.exploding = False
-        self.size = 4
+        self.size = 5
         self.max_size = 50
-        self.inflate_speed = 500
-        self.fade_speed = 3000
+        self.inflate_speed = 100
+        self.fade_speed = 2500
 
     def explosion_timer(self):
         if not self.exploding:
@@ -98,15 +102,6 @@ class ExplodingParticle(Particle):
         self.check_size()
         self.check_alpha()
 
-class FloatingParticle(Particle):
-    def __init__(self,
-                 groups: pygame.sprite.Group,
-                 pos: list[int],
-                 color: str,
-                 direction: pygame.math.Vector2,
-                 speed: int):
-        super().__init__(groups, pos, color, direction, speed)
-
 def spawn_particles(n, particle_group):
     for _ in range(n):
         pos = pygame.mouse.get_pos()
@@ -118,17 +113,9 @@ def spawn_particles(n, particle_group):
 
 def spawn_exploding_particles(n, particle_group, pos):
     for _ in range(n):
-        color = choice(("red", "yellow", "orange"))
+        color = (255,0,0)
         direction = pygame.math.Vector2(uniform(-0.2, 0.2), uniform(-1, 0))
         direction = direction.normalize()
         speed = randint(50, 400)
         ExplodingParticle(particle_group, pos, color, direction, speed)
     print("particles spawned")
-
-def spawn_floating_particle(particle_group):
-    init_pos = pygame.mouse.get_pos()
-    pos = init_pos[0] + randint(-10, 10), init_pos[1] + randint(-10, 10)
-    color = "white"
-    direction = pygame.math.Vector2(0, -1)
-    speed = randint(50, 100)
-    FloatingParticle(particle_group, pos, color, direction, speed)
