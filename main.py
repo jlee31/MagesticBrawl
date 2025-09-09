@@ -1,6 +1,7 @@
 import pygame, sys
 from src.settings import *
 from src.level import Level
+from src.particles import *
 
 class Game:
 	def __init__(self):
@@ -11,6 +12,7 @@ class Game:
 		self.level = Level()
 		self.FPS = 60
 		self.dt = self.clock.tick(60) / 1000.0
+		
 
 	def run(self):
 		while True:

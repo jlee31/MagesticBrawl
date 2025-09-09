@@ -184,6 +184,7 @@ class Fighter2():
             
             # Check if the attacking rectangle overlaps with the target mask
             hit_point = self._rectOverlapsMask(attacking_rect, target_mask, target_draw_x, target_draw_y)
+            
             if hit_point:
                 # Check if this target has already been hit by the current attack
                 target_id = id(target)
@@ -191,7 +192,7 @@ class Fighter2():
                     # Hit occurred! Deal damage and set hit state
                     target.health -= 10
                     target.is_hit = True
-                    # spawn_exploding_particles(n=1000, particle_group=self.particle_group, pos=hit_point)
+                    spawn_exploding_particles(n=1000, particle_group=self.particle_group, pos=hit_point)
                     print("HIT")
                     # Mark this target as hit by the current attack
                     self.attack_hit_targets.add(target_id)
@@ -307,6 +308,10 @@ class Fighter2():
         # Use pygame's built-in mask collision detection
         collision_point = mask.overlap(attack_mask, (offset_x, offset_y))
         
-        # Return True if there was a collision, False otherwise
-        return collision_point
+        # If collision occurred, return the center of the attack rectangle
+        if collision_point:
+            return (rect.centerx, rect.centery)
+        
+        # Return None if no collision
+        return None
 
