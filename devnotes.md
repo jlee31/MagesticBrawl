@@ -17,7 +17,7 @@ maybe
 
 IN ORDER:
 1) Add pygame masks for proper collisions (DONE)
-2) add particles (To-Do)
+2) add particles (DONE)
 3) add homescreen + menu + countdown (DONE)
 4) ability to play other characters (To-Do)
 
