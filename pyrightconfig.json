@@ -1,0 +1,5 @@
+{
+  "venvPath": "/opt/homebrew/Caskroom/miniforge/base/envs",
+  "venv": "magesticbrawl",
+  "pythonVersion": "3.11"
+}
