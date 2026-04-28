@@ -13,17 +13,16 @@ class Game:
         self.clock = pygame.time.Clock()
         self.level = Level()
         self.FPS = 60
-        self.dt = self.clock.tick(60) / 1000.0
 
     def run(self):
         while True:
-            self.clock.tick(self.FPS)
-            self.level.moveScreen()
+            dt = self.clock.tick(self.FPS) / 1000.0
+            events = pygame.event.get()
 
-            dt = self.clock.tick() / 1000
+            self.level.moveScreen()
             self.level.drawBg()
             self.level.drawGround()
-            self.level.run(self.dt)
+            self.level.run(dt, events)
             pygame.display.update()
 
 

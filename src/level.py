@@ -122,9 +122,9 @@ class Level:
         # Sprite Groups
         self.particle_group = pygame.sprite.Group()
        
-    def run(self, dt):
+    def run(self, dt, events):
         # Handle all events in one place
-        for event in pygame.event.get():
+        for event in events:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
@@ -261,35 +261,8 @@ class Level:
             self.display_surface.blit(back_text, back_text_rect)
             
 
-        for event in pygame.event.get():
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    # Check button collisions directly in the event loop
-                    if play_btn.collidepoint((mx, my)):
-                        if state == "main_screen":
-                            print("Starting game...")
-                            self.game_state = "fighting"
-                            self.playing = True
-                            self.intro_count = 3  # Reset countdown
-                            self.last_count_update = pygame.time.get_ticks()
-                        else:
-                            print("Resuming game...")
-                            self.game_state = "fighting"
-                            self.playing = True
-                    elif settings_btn.collidepoint((mx, my)):
-                        if state == "main_screen" or state == "pause":
-                            print("Opening settings...")
-                            self.game_state = "settings"
-                        elif state == "settings":
-                            print("Volume clicked")
-                    elif exit_btn.collidepoint((mx, my)):
-                        if state == "settings":
-                            print("Going back...")
-                            self.game_state = "main_screen"
-                        else:
-                            print("exiting")
-                            pygame.quit()
-                            sys.exit() 				
+        # Click handling is done via Button.check_click() which reads
+        # mouse state directly — no separate event loop needed here.
 
     def new_menu_buttons(self, state):
         if state == "main_screen" or state == "pause":
