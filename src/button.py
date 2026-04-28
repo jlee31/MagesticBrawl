@@ -1,13 +1,18 @@
 # DISCLAIMER: THIS IS NOT MY ORIGINAL CODE
 # comes from https://www.youtube.com/watch?v=8SzTzvrWaAA&ab_channel=ClearCode
 # i just edited it a bit
+from __future__ import annotations
+from typing import TYPE_CHECKING, Optional
+if TYPE_CHECKING:
+    from src.level import Level
 import pygame
 gui_font = pygame.font.Font("assets/fonts/turok.ttf",30)
 class Button:
 	def __init__(self,text,width,height,pos,elevation):
-		#Core attributes 
+		#Core attributes
 		self.pressed = False
 		self.elevation = elevation
+		self.level: Optional[Level] = None
 		self.dynamic_elecation = elevation
 		self.original_y_pos = pos[1]
 
@@ -44,7 +49,7 @@ class Button:
 				self.pressed = True
 			else:
 				self.dynamic_elecation = self.elevation
-				if self.pressed == True:
+				if self.pressed:
 					self.pressed = False
 					# Handle button click based on button text and current game state
 					self.handle_button_action(game_state)
@@ -53,6 +58,47 @@ class Button:
 			self.top_color = '#4f0c0c'
 	
 	def handle_button_action(self, game_state):
-		# This method will be overridden by each button instance
-		# For now, just print the button text
 		print(f'Button "{self.text_surf}" clicked in state: {game_state}')
+
+class PlayButton(Button):
+    def handle_button_action(self, game_state):
+        if game_state == "main_screen":
+            print("Starting game...")
+            assert self.level
+            self.level.game_state = "fighting"
+            self.level.playing = True
+            self.level.intro_count = 3
+            self.level.last_count_update = pygame.time.get_ticks()
+
+class ResumeButton(Button):
+    def handle_button_action(self, game_state):
+        if game_state == "pause":
+            print("Resuming game...")
+            assert self.level
+            self.level.game_state = "fighting"
+            self.level.playing = True
+
+class SettingsButton(Button):
+    def handle_button_action(self, game_state):
+        if game_state == "main_screen" or game_state == "pause":
+            print("Opening settings...")
+            assert self.level
+            self.level.game_state = "settings"
+
+class BackButton(Button):
+    def handle_button_action(self, game_state):
+        if game_state == "settings":
+            print("Going back...")
+            assert self.level
+            self.level.game_state = "main_screen"
+
+class ExitButton(Button):
+    def handle_button_action(self, game_state):
+        import sys
+        print("Exiting...")
+        pygame.quit()
+        sys.exit()
+
+class VolumeButton(Button):
+    def handle_button_action(self, game_state):
+        print("Volume clicked")
