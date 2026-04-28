@@ -64,9 +64,13 @@ class Level:
         pygame.mixer.music.play(loops=-1)   
         pygame.mixer.music.set_volume(0.3)  
 
+        # player audio files
+        self.warrior_swing_audio = pygame.mixer.Sound("assets/audio/sword_swing.wav")
+        self.sorcerer_swing_audio = pygame.mixer.Sound("assets/audio/magic_swing.mp3")
+
         # Players
-        self.fighter_1 = Fighter2(1, 200, 280, False, WARRIOR_DATA, self.warrior_sheet, self.warrior_animation_steps)
-        self.fighter_2 = Fighter2(2, 700, 280, True, SORCERER_DATA, self.sorcerer_sheet, self.sorcerer_animation_steps)
+        self.fighter_1 = Fighter2(1, 200, 280, False, WARRIOR_DATA, self.warrior_sheet, self.warrior_animation_steps, self.warrior_swing_audio)
+        self.fighter_2 = Fighter2(2, 700, 280, True, SORCERER_DATA, self.sorcerer_sheet, self.sorcerer_animation_steps, self.sorcerer_swing_audio)
    
         # buttons - using custom button classes that handle game state changes
         middle = SCREEN_WIDTH / 2 - 100
@@ -155,8 +159,8 @@ class Level:
             if pygame.time.get_ticks() - self.round_over_time > self.round_over_cooldown:
                 self.round_complete = False
                 self.intro_count = 3
-                self.fighter_1 = Fighter2(1, 200, 280, False, WARRIOR_DATA, self.warrior_sheet, self.warrior_animation_steps)
-                self.fighter_2 = Fighter2(2, 700, 280, True, SORCERER_DATA, self.sorcerer_sheet, self.sorcerer_animation_steps)
+                self.fighter_1 = Fighter2(1, 200, 280, False, WARRIOR_DATA, self.warrior_sheet, self.warrior_animation_steps, self.warrior_swing_audio)
+                self.fighter_2 = Fighter2(2, 700, 280, True, SORCERER_DATA, self.sorcerer_sheet, self.sorcerer_animation_steps, self.sorcerer_swing_audio)
 
         # Menu / Options
         if self.game_state == "main_screen":

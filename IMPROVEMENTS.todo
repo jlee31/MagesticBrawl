@@ -8,7 +8,7 @@ PHASE 1 — CRITICAL BUG FIXES (do these first, they're silently
 breaking things you've already built)
 ================================================================
 
-[ ] 1. Consolidate event loops into one per frame
+[x] 1. Consolidate event loops into one per frame
     - main.py and src/level.py:127 and src/level.py:264 all call
       pygame.event.get() in the same frame
     - event.get() CONSUMES events, so each loop steals from the others
@@ -16,7 +16,7 @@ breaking things you've already built)
     - Fix: single event pump in main.py (or a top-level handler),
       dispatch events to current state
 
-[ ] 2. Fix dt handling in main.py
+[x] 2. Fix dt handling in main.py
     - main.py line 16: self.dt set once in __init__, never updated
     - main.py line 20 AND 23: two clock.tick() calls per frame;
       the second returns ~0 and overwrites dt
@@ -56,7 +56,7 @@ PHASE 2 — DEAD CODE REMOVAL (small, makes future work easier)
 [ ] 10. Add .gitignore (at minimum: __pycache__/, *.pyc, .DS_Store,
         .vscode/, venv/) and remove __pycache__ from tracking
 
-11. Fix README placeholder URL ("yourusername/majestic-brawl")
+[ ] 11. Fix README placeholder URL ("yourusername/majestic-brawl")
         and resolve pygame vs pygame-ce inconsistency
         (code uses `import pygame`, README says install pygame-ce)
 
