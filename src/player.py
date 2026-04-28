@@ -3,7 +3,7 @@ from src.settings import SCREEN_HEIGHT
 from src.particles import spawn_exploding_particles
 
 class Fighter2():
-    def __init__(self, player, start_x, start_y, flip, data, sprite_sheet, sprite_animation_sheet):
+    def __init__(self, player, start_x, start_y, flip, data, sprite_sheet, sprite_animation_sheet, swing_sound):
         # Player Creation
         self.player = player
         
@@ -59,8 +59,8 @@ class Fighter2():
         pygame.time.set_timer(self.floating_particle_timer, 10)
 
         # music / audio
-        self.sword_swing = pygame.mixer.Sound("assets/audio/sword_swing.wav")
-        self.magic_swing = pygame.mixer.Sound("assets/audio/magic_swing.mp3")
+        self.sword_swing = swing_sound
+        self.magic_swing = swing_sound
     
     def loadImages(self, sprite_sheet, sprite_animation_sheet):
         animation_list = []
