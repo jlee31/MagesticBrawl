@@ -2,7 +2,8 @@
 
 import pygame
 from random import choice, randint, uniform
-from src.settings import *
+from src.settings import SCREEN_WIDTH, SCREEN_HEIGHT
+
 pygame.init()
 display_surface = pygame.display.get_surface()
 clock = pygame.time.Clock()
