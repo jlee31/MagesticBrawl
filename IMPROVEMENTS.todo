@@ -1,0 +1,175 @@
+# MagesticBrawl Improvements
+
+Ordered roughly by: bug fixes first (unblock everything else),
+then quick wins, then features, then architecture, then polish.
+
+================================================================
+PHASE 1 — CRITICAL BUG FIXES (do these first, they're silently
+breaking things you've already built)
+================================================================
+
+[ ] 1. Consolidate event loops into one per frame
+    - main.py and src/level.py:127 and src/level.py:264 all call
+      pygame.event.get() in the same frame
+    - event.get() CONSUMES events, so each loop steals from the others
+    - Symptom: menu input may feel flaky, ESC may need multiple presses
+    - Fix: single event pump in main.py (or a top-level handler),
+      dispatch events to current state
+
+[ ] 2. Fix dt handling in main.py
+    - main.py line 16: self.dt set once in __init__, never updated
+    - main.py line 20 AND 23: two clock.tick() calls per frame;
+      the second returns ~0 and overwrites dt
+    - Fix: one tick per frame, store dt on self each frame,
+      pass to level.run(dt)
+
+[ ] 3. Stop reloading audio every round
+    - src/player.py lines 63-64: Fighter2.__init__ loads sword_swing
+      and magic_swing from disk
+    - src/level.py lines 196-197: new Fighter2 objects created on
+      every round reset → audio reloaded every round
+    - Fix: load sounds once in Level.__init__ (or asset manager),
+      pass into Fighter2 or look up from a shared registry
+
+[ ] 4. Clean up module-level side effects in src/particles.py
+    - Lines 6-11: pygame.init(), display_surface, clock,
+      particle_group, floating_particle_timer all created at
+      IMPORT TIME and never used elsewhere in the file
+    - Fix: delete the unused globals; particles.py should only
+      define classes + spawn functions
+
+================================================================
+PHASE 2 — DEAD CODE REMOVAL (small, makes future work easier)
+================================================================
+
+[ ] 5. Delete old_menu_buttons in src/level.py:224 (~70 lines, unused)
+
+[ ] 6. Delete drawText in src/level.py:363 (unused)
+
+[ ] 7. Delete takeDamage in src/player.py:200 (unused)
+
+[ ] 8. Delete spawn_particles in src/particles.py (unused; reads
+       mouse pos which is wrong for this game anyway)
+
+[ ] 9. Delete src/temp.txt if it's not needed
+
+[ ] 10. Add .gitignore (at minimum: __pycache__/, *.pyc, .DS_Store,
+        .vscode/, venv/) and remove __pycache__ from tracking
+
+11. Fix README placeholder URL ("yourusername/majestic-brawl")
+        and resolve pygame vs pygame-ce inconsistency
+        (code uses `import pygame`, README says install pygame-ce)
+
+================================================================
+PHASE 3 — QUICK GAMEPLAY WINS (high feel-per-line-of-code)
+================================================================
+
+[ ] 12. Knockback on hit
+    - In Fighter2.attack, when a hit lands, push target a few px
+      in attacker's facing direction
+    - Currently hits feel weightless
+
+[ ] 13. Hit-stop / freeze frames
+    - When a hit lands, skip 3-5 frames of position/animation
+      updates on BOTH fighters
+    - Standard fighting game juice
+
+[ ] 14. Screen shake on heavy hits
+    - On attack_type == 2 hit, offset blits by randint(-3, 3)
+      for ~6 frames
+
+[ ] 15. Block mechanic
+    - Hold S (P1) / K (P2) to block, reduces incoming damage
+      by ~75%, plays a different anim (or just tints sprite)
+
+================================================================
+PHASE 4 — ROUND / MATCH SYSTEM
+================================================================
+
+[ ] 16. Best-of-3 match structure
+    - Track rounds_won per fighter (not just self.score)
+    - Declare match winner at 2 rounds won
+    - "Round 1" / "Round 2" / "Final Round" intro text
+      (countdown rendering already exists, just swap the string)
+
+[ ] 17. K.O. / Victory text overlays
+    - Replace the static victory_image with rendered text
+    - "K.O." flash on round end, then "Player X Wins"
+
+================================================================
+PHASE 5 — CHARACTER SELECT (biggest user-visible feature)
+================================================================
+
+[ ] 18. Convert playerData.py to dataclasses
+    - Replace positional lists (data[5], data[6]...) with named
+      fields (data.attack_one_range, data.attack_two_range...)
+    - Survives refactoring, much easier to add new chars
+
+[ ] 19. Wire up Huntress + Old Wizard
+    - Stubs already exist in playerData.py
+    - Need: sprite sheets in assets/, animation_steps arrays,
+      attack offsets tuned
+
+[ ] 20. CharacterSelect game state
+    - Add to game_states list in Level.__init__
+    - Build a screen with character portraits + P1/P2 selection
+    - Transition: main_screen → character_select → countdown → fighting
+
+================================================================
+PHASE 6 — SINGLE PLAYER / AI
+================================================================
+
+[ ] 21. Basic AI opponent
+    - State machine: idle → approach → attack-when-in-range → retreat
+    - ~100 lines, replaces fighter_2's keyboard input
+    - Add "1P / 2P" toggle on home screen
+
+[ ] 22. (Optional) Difficulty levels: easy/normal/hard
+    - Tune AI reaction time + attack frequency
+
+================================================================
+PHASE 7 — ARCHITECTURE REFACTOR (do AFTER features stabilize,
+not before — premature abstraction is worse than messy code)
+================================================================
+
+[ ] 23. Move keybinds out of Fighter2.move() into per-player config
+    - Either on PlayerData or a new src/controls.py
+    - Enables remapping later
+
+[ ] 24. Asset manager (src/assets.py)
+    - Centralize all pygame.image.load and pygame.mixer.Sound calls
+    - Cache loaded assets
+
+[ ] 25. Split level.py (currently 375 lines doing 5 jobs)
+    - src/states/ — MenuState, FightState, PauseState, SettingsState
+      with a common interface (handle_events / update / draw)
+    - src/scene/background.py — extract drawBg, drawGround, moveScreen
+    - src/ui/hud.py — health bars, score
+    - Level becomes a thin state-machine coordinator
+
+================================================================
+PHASE 8 — POLISH (do these as you feel like it)
+================================================================
+
+[ ] 26. Damage numbers floating up from hit point
+
+[ ] 27. Win pose animation on round end (slowdown + idle pose hold)
+
+[ ] 28. Announcer voice clips (already in devnotes)
+    - "Round 1... Fight!", "K.O.", win calls
+
+[ ] 29. Settings menu actually does something
+    - Volume slider (music + SFX separate)
+    - Keybind remap
+
+[ ] 30. Pause menu has a "Quit to main menu" option
+    (currently quits app)
+
+================================================================
+NOTES
+================================================================
+- Test after each phase. Don't batch 5 changes and then debug.
+- Phases 1-2 should be one PR each (or one combined "cleanup" PR).
+- Phases 3-4 are independent, can interleave.
+- Phase 5 (character select) is the biggest "this feels like a
+  real game" moment — prioritize it once bugs are out.
