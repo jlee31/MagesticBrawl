@@ -1,9 +1,7 @@
 import pygame
 
 from src.level import Level
-from src.particles import *
-from src.settings import *
-
+from src.settings import SCREEN_HEIGHT, SCREEN_WIDTH
 
 class Game:
     def __init__(self):
