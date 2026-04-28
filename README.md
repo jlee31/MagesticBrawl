@@ -13,7 +13,7 @@ streetfighter clone written in python. features sprite sheet rendering for effic
 ### Installation
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/majestic-brawl.git
+git clone https://github.com/jlee31/majestic-brawl.git
 cd majestic-brawl
 
 # Install dependencies
