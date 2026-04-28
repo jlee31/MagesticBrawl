@@ -1,47 +1,9 @@
-import pygame, sys
-from src.settings import *
-from src.player import *
-from src.particles import *
-from src.button import Button
-
-# Custom button classes that handle game state changes
-class PlayButton(Button):
-    def handle_button_action(self, game_state):
-        if game_state == "main_screen":
-            print("Starting game...")
-            self.level.game_state = "fighting"
-            self.level.playing = True
-            self.level.intro_count = 3
-            self.level.last_count_update = pygame.time.get_ticks()
-
-class ResumeButton(Button):
-    def handle_button_action(self, game_state):
-        if game_state == "pause":
-            print("Resuming game...")
-            self.level.game_state = "fighting"
-            self.level.playing = True
-
-class SettingsButton(Button):
-    def handle_button_action(self, game_state):
-        if game_state == "main_screen" or game_state == "pause":
-            print("Opening settings...")
-            self.level.game_state = "settings"
-
-class BackButton(Button):
-    def handle_button_action(self, game_state):
-        if game_state == "settings":
-            print("Going back...")
-            self.level.game_state = "main_screen"
-
-class ExitButton(Button):
-    def handle_button_action(self, game_state):
-        print("Exiting...")
-        pygame.quit()
-        sys.exit()
-
-class VolumeButton(Button):
-    def handle_button_action(self, game_state):
-        print("Volume clicked")
+import pygame
+import sys
+from src.settings import SCREEN_WIDTH, SCREEN_HEIGHT
+from src.player import Fighter2
+from src.button import PlayButton, ResumeButton, SettingsButton, BackButton, ExitButton, VolumeButton
+from src.playerData import WARRIOR_DATA, SORCERER_DATA
 
 YELLOW = (255,255,0)
 RED = (255,0,0)
@@ -80,7 +42,7 @@ class Level:
         self.auto_scroll = True
         self.scroll_speed = 1
 
-        self.ground_image = pygame.image.load(f'assets/images/background/ground.png').convert_alpha()
+        self.ground_image = pygame.image.load('assets/images/background/ground.png').convert_alpha()
         self.ground_width = self.ground_image.get_width()
         self.ground_height = self.ground_image.get_height()
 
@@ -177,7 +139,7 @@ class Level:
         self.drawHealthBar(self.fighter_2.health, 660, 20)
 
         # check defeat
-        if self.round_complete == False:
+        if not self.round_complete:
             if self.fighter_1.is_dead:
                 self.score[1] += 1
                 self.round_complete = True
@@ -310,10 +272,7 @@ class Level:
         # Automatic infinite background movement (only when enabled)
         if self.auto_scroll:
             self.scroll += self.scroll_speed
-        
-        # Calculate the total width needed for seamless looping
-        total_bg_width = self.bgWidth * 3  # Since we draw 3 background images
-        
+      
         # Reset scroll when it reaches the width of one background image
         # This creates the infinite loop effect
         if self.scroll >= self.bgWidth:

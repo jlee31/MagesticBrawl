@@ -1,8 +1,7 @@
 import pygame
-from src.settings import *
-from src.playerData import *
-from src.particles import * 
-from random import randint 
+from src.settings import SCREEN_HEIGHT
+from src.particles import spawn_exploding_particles
+
 class Fighter2():
     def __init__(self, player, start_x, start_y, flip, data, sprite_sheet, sprite_animation_sheet):
         # Player Creation
