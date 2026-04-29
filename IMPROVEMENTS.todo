@@ -46,17 +46,17 @@ PHASE 2 — DEAD CODE REMOVAL (small, makes future work easier)
 
 [x] 6. Delete drawText in src/level.py:363 (unused)
 
-[ ] 7. Delete takeDamage in src/player.py:200 (unused)
+[x] 7. Delete takeDamage in src/player.py:200 (unused)
 
-[ ] 8. Delete spawn_particles in src/particles.py (unused; reads
+[x] 8. Delete spawn_particles in src/particles.py (unused; reads
        mouse pos which is wrong for this game anyway)
 
-[ ] 9. Delete src/temp.txt if it's not needed
+[x] 9. Delete src/temp.txt if it's not needed
 
-[ ] 10. Add .gitignore (at minimum: __pycache__/, *.pyc, .DS_Store,
+[x] 10. Add .gitignore (at minimum: __pycache__/, *.pyc, .DS_Store,
         .vscode/, venv/) and remove __pycache__ from tracking
 
-[ ] 11. Fix README placeholder URL ("yourusername/majestic-brawl")
+[x] 11. Fix README placeholder URL ("yourusername/majestic-brawl")
         and resolve pygame vs pygame-ce inconsistency
         (code uses `import pygame`, README says install pygame-ce)
 
