@@ -4,13 +4,6 @@ import pygame
 from random import choice, randint, uniform
 from src.settings import SCREEN_WIDTH, SCREEN_HEIGHT
 
-pygame.init()
-display_surface = pygame.display.get_surface()
-clock = pygame.time.Clock()
-particle_group = pygame.sprite.Group()
-floating_particle_timer = pygame.event.custom_type()
-pygame.time.set_timer(floating_particle_timer, 10)
-
 class Particle(pygame.sprite.Sprite):
     def __init__(self,
                  groups: pygame.sprite.Group,
