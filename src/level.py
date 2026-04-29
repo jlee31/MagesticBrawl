@@ -177,60 +177,17 @@ class Level:
     def home_screen(self):
         self.display_surface.fill((255,255,255))
         self.draw_text("Magestic Brawl", self.menu_font, (0,0,0), 150, 20)
-        self.new_menu_buttons(state=self.game_state)
+        self.menu_buttons(state=self.game_state)
 
     def pause_menu(self):
-        self.new_menu_buttons(state=self.game_state)
+        self.menu_buttons(state=self.game_state)
 
     def settings_menu(self):
         self.display_surface.fill((255,255,255))
         self.draw_text("Settings", self.menu_font, (0,0,0), SCREEN_WIDTH / 2 - 200, 20)
-        self.new_menu_buttons(state=self.game_state)
+        self.menu_buttons(state=self.game_state)
 
-    def old_menu_buttons(self, state):
-        mx, my = pygame.mouse.get_pos()
-        play_btn = pygame.Rect(SCREEN_WIDTH / 2 - 100, 150, 200, 50)
-        settings_btn = pygame.Rect(SCREEN_WIDTH / 2 - 100 , 250, 200, 50)
-        exit_btn = pygame.Rect(SCREEN_WIDTH / 2 - 100, 350, 200, 50)
-        
-
-        if state == "main_screen" or state == "pause":
-            pygame.draw.rect(self.display_surface, (255,0,0), play_btn, width=2, border_radius=2)
-            if state == "main_screen": 
-                play_text = self.menu_buttons_font.render("Play", True, (0,0,0))
-                play_text_rect = play_text.get_rect(center=play_btn.center)
-                self.display_surface.blit(play_text, play_text_rect)
-            if state == "pause":
-                resume_text = self.menu_buttons_font.render("Resume", True, (0,0,0))
-                resume_text_rect = resume_text.get_rect(center=play_btn.center)
-                self.display_surface.blit(resume_text, resume_text_rect)
-
-            pygame.draw.rect(self.display_surface, (255,0,0), settings_btn, width=2, border_radius=2)
-            settings_text = self.menu_buttons_font.render("Settings", True, (0,0,0))
-            settings_text_rect = settings_text.get_rect(center=settings_btn.center)
-            self.display_surface.blit(settings_text, settings_text_rect)
-
-            pygame.draw.rect(self.display_surface, (255,0,0), exit_btn, width=2, border_radius=2)
-            quit_text = self.menu_buttons_font.render("Quit", True, (0,0,0))
-            quit_text_rect = quit_text.get_rect(center=exit_btn.center)
-            self.display_surface.blit(quit_text, quit_text_rect)
-
-        elif state == "settings":
-            pygame.draw.rect(self.display_surface, (255,0,0), settings_btn, width=2, border_radius=2)
-            volume_text = self.menu_buttons_font.render("Volume", True, (0,0,0))
-            volume_text_rect = volume_text.get_rect(center=settings_btn.center)
-            self.display_surface.blit(volume_text, volume_text_rect)
-
-            pygame.draw.rect(self.display_surface, (255,0,0), exit_btn, width=2, border_radius=2)
-            back_text = self.menu_buttons_font.render("Back", True, (0,0,0))
-            back_text_rect = back_text.get_rect(center=exit_btn.center)
-            self.display_surface.blit(back_text, back_text_rect)
-            
-
-        # Click handling is done via Button.check_click() which reads
-        # mouse state directly — no separate event loop needed here.
-
-    def new_menu_buttons(self, state):
+    def menu_buttons(self, state):
         if state == "main_screen" or state == "pause":
             if state == "main_screen":
                 self.play_btn.draw(self.display_surface, self.game_state)

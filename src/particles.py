@@ -5,12 +5,7 @@ from random import choice, randint, uniform
 from src.settings import SCREEN_WIDTH, SCREEN_HEIGHT
 
 class Particle(pygame.sprite.Sprite):
-    def __init__(self,
-                 groups: pygame.sprite.Group,
-                 pos: list[int],
-                 color: tuple,
-                 direction: pygame.math.Vector2,
-                 speed: int):
+    def __init__(self, groups, pos, color, direction, speed):
         super().__init__(groups)
         self.pos = pygame.math.Vector2(pos)
         self.color = color
@@ -56,12 +51,7 @@ class Particle(pygame.sprite.Sprite):
         self.check_alpha()
 
 class ExplodingParticle(Particle):
-    def __init__(self,
-                 groups: pygame.sprite.Group,
-                 pos: list[int],
-                 color: str,
-                 direction: pygame.math.Vector2,
-                 speed: int):
+    def __init__(self, groups, pos, color, direction, speed):
         super().__init__(groups, pos, color, direction, speed)
         self.t0 = pygame.time.get_ticks()
         self.lifetime = randint(1000, 1200)
