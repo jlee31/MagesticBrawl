@@ -189,7 +189,7 @@ class Fighter2():
                 target_id = id(target)
                 if target_id not in self.attack_hit_targets:
                     # Hit occurred! Deal damage and set hit state
-                    target.health -= 10
+                    self.takeDamage()
                     target.is_hit = True
                     spawn_exploding_particles(n=1000, particle_group=self.particle_group, pos=hit_point)
                     print("HIT")
