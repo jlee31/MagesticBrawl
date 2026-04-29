@@ -253,15 +253,3 @@ class Level:
         pygame.draw.rect(self.display_surface, RED, (x,y, 300, 30) )
         pygame.draw.rect(self.display_surface, YELLOW, (x,y, 300 * ratio, 30))
     
-    def drawText(self):
-        # Display auto-scroll status
-        font = pygame.font.Font(None, 36)
-        status_text = "Auto-scroll: ON" if self.auto_scroll else "Auto-scroll: OFF"
-        text_surface = font.render(status_text, True, WHITE)
-        self.display_surface.blit(text_surface, (10, SCREEN_HEIGHT - 40))
-        
-        # Display controls info
-        controls_text = "Press T to toggle auto-scroll, Arrow keys for manual control"
-        controls_surface = font.render(controls_text, True, WHITE)
-        self.display_surface.blit(controls_surface, (10, SCREEN_HEIGHT - 70))
-
