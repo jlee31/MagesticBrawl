@@ -23,7 +23,7 @@ breaking things you've already built)
     - Fix: one tick per frame, store dt on self each frame,
       pass to level.run(dt)
 
-[ ] 3. Stop reloading audio every round
+[x] 3. Stop reloading audio every round
     - src/player.py lines 63-64: Fighter2.__init__ loads sword_swing
       and magic_swing from disk
     - src/level.py lines 196-197: new Fighter2 objects created on
@@ -31,7 +31,7 @@ breaking things you've already built)
     - Fix: load sounds once in Level.__init__ (or asset manager),
       pass into Fighter2 or look up from a shared registry
 
-[ ] 4. Clean up module-level side effects in src/particles.py
+[x] 4. Clean up module-level side effects in src/particles.py
     - Lines 6-11: pygame.init(), display_surface, clock,
       particle_group, floating_particle_timer all created at
       IMPORT TIME and never used elsewhere in the file
@@ -42,9 +42,9 @@ breaking things you've already built)
 PHASE 2 — DEAD CODE REMOVAL (small, makes future work easier)
 ================================================================
 
-[ ] 5. Delete old_menu_buttons in src/level.py:224 (~70 lines, unused)
+[x] 5. Delete old_menu_buttons in src/level.py:224 (~70 lines, unused)
 
-[ ] 6. Delete drawText in src/level.py:363 (unused)
+[x] 6. Delete drawText in src/level.py:363 (unused)
 
 [ ] 7. Delete takeDamage in src/player.py:200 (unused)
 
