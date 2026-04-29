@@ -86,15 +86,6 @@ class ExplodingParticle(Particle):
         self.check_size()
         self.check_alpha()
 
-def spawn_particles(n, particle_group):
-    for _ in range(n):
-        pos = pygame.mouse.get_pos()
-        color = choice(("red", "green", "blue"))
-        direction = pygame.math.Vector2(uniform(-1, 1), uniform(-1, 1))
-        direction = direction.normalize()
-        speed = randint(50, 400)
-        Particle(particle_group, pos, color, direction, speed)
-
 def spawn_exploding_particles(n, particle_group, pos):
     for _ in range(n):
         color = (255,0,0)
