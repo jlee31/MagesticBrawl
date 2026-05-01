@@ -71,6 +71,9 @@ class Fighter2():
         # knockback
         self.knockback_velocity = 0
         self.knockback_frames = 0
+
+        # screen shake
+        self.screen_shake_trigger = False
     
     def loadImages(self, sprite_sheet, sprite_animation_sheet):
         animation_list = []
@@ -241,6 +244,9 @@ class Fighter2():
                     else:
                         target.takeDamage(2)
                         target.is_hit = True
+                    
+                    if self.attack_type == 2:
+                        self.screen_shake_trigger = True
                 
                     spawn_exploding_particles(n=1000, particle_group=self.particle_group, pos=hit_point)
                     
@@ -262,10 +268,10 @@ class Fighter2():
         if type == 2:
             self.health -= 10
                 
-    def draw(self, surface):
+    def draw(self, surface, shake_offset=(0, 0)):
         img = pygame.transform.flip(self.image, self.flip, False)
-        draw_x = self.rect.x - (self.offset[0] * self.image_scale)
-        draw_y = self.rect.y - (self.offset[1] * self.image_scale)
+        draw_x = self.rect.x - (self.offset[0] * self.image_scale) + shake_offset[0]
+        draw_y = self.rect.y - (self.offset[1] * self.image_scale) + shake_offset[1]
         if self.is_blocking:
             img = img.copy()
             img.fill((0, 80, 255, 0), special_flags=pygame.BLEND_RGB_ADD)

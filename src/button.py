@@ -103,3 +103,16 @@ class ExitButton(Button):
 class VolumeButton(Button):
     def handle_button_action(self, game_state):
         print("Volume clicked")
+        
+class ScreenShakeToggle(Button):
+    def draw(self, screen, game_state):
+        if self.level:
+            label = "Shake: ON" if self.level.screen_shake_enabled else "Shake: OFF"
+            self.text_surf = gui_font.render(label, True, '#FFFFFF')
+            self.text_rect = self.text_surf.get_rect(center=self.top_rect.center)
+        super().draw(screen, game_state)
+
+    def handle_button_action(self, game_state):
+        if game_state == "settings":
+            assert self.level
+            self.level.screen_shake_enabled = not self.level.screen_shake_enabled
