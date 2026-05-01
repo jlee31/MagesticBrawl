@@ -48,6 +48,8 @@ class Fighter2():
         self.attack_type = 0
         self.attack_cooldown = 0
         self.health = 100
+
+        self.hitstop_frames = 0
         
         # Attack hit tracking - NEW: Track which attacks have already hit
         self.current_attack_id = 0  # Unique ID for each attack
@@ -89,6 +91,10 @@ class Fighter2():
 
         key = pygame.key.get_pressed()
 
+        if self.hitstop_frames > 0:
+            self.hitstop_frames -= 1
+            return
+        
         if self.attacking is False and not self.is_dead:
             if self.player == 1:
                 if key[pygame.K_a]:
@@ -101,28 +107,28 @@ class Fighter2():
                     self.vel_y = -30
                     self.is_jumping = True
                 if key[pygame.K_r]:
-                    self.attack_type = 1 
+                    self.attack_type = 1
                     self.attack(pygame.display.get_surface(), target)
                 if key[pygame.K_t]:
                     self.attack_type = 2
                     self.attack(pygame.display.get_surface(), target)
             if self.player == 2:
-                if key[pygame.K_j]:
-                    dx = -SPEED
-                    self.is_running = True
-                if key[pygame.K_l]:
-                    dx = SPEED
-                    self.is_running = True
-                if key[pygame.K_i] and not self.is_jumping:
-                    self.vel_y = -30
-                    self.is_jumping = True
-                if key[pygame.K_o]:
-                    self.attack_type = 1 
-                    self.attack(pygame.display.get_surface(), target)
-                if key[pygame.K_p]:
-                    self.attack_type = 2
-                    self.attack(pygame.display.get_surface(), target)
-            
+                    if key[pygame.K_j]:
+                        dx = -SPEED
+                        self.is_running = True
+                    if key[pygame.K_l]:
+                        dx = SPEED
+                        self.is_running = True
+                    if key[pygame.K_i] and not self.is_jumping:
+                        self.vel_y = -30
+                        self.is_jumping = True
+                    if key[pygame.K_o]:
+                        self.attack_type = 1 
+                        self.attack(pygame.display.get_surface(), target)
+                    if key[pygame.K_p]:
+                        self.attack_type = 2
+                        self.attack(pygame.display.get_surface(), target)
+
         # Apply gravity
         self.vel_y += GRAVITY
         dy += self.vel_y
@@ -210,6 +216,10 @@ class Fighter2():
                     knockback = -15 if self.flip else 15
                     target.knockback_velocity = knockback
                     target.knockback_frames = 5
+
+                    # Apply Freeze
+                    self.hitstop_frames = 15
+                    target.hitstop_frames = 15
 
                     # Mark this target as hit by the current attack
                     self.attack_hit_targets.add(target_id)
