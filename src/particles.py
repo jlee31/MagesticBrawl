@@ -1,7 +1,7 @@
 # Credit to https://github.com/orkslayergamedev/pygame-particles
 
 import pygame
-from random import choice, randint, uniform
+from random import randint, uniform
 from src.settings import SCREEN_WIDTH, SCREEN_HEIGHT
 
 class Particle(pygame.sprite.Sprite):
