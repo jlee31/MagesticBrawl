@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Optional
 if TYPE_CHECKING:
     from src.level import Level
 import pygame
+pygame.font.init()
 gui_font = pygame.font.Font("assets/fonts/turok.ttf",30)
 class Button:
 	def __init__(self,text,width,height,pos,elevation):
