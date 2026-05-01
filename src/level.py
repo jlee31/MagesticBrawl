@@ -8,6 +8,8 @@ from src.playerData import WARRIOR_DATA, SORCERER_DATA
 YELLOW = (255,255,0)
 RED = (255,0,0)
 WHITE = (255,255,255)
+PURPLE = (128, 0, 128)
+DARK_BLUE = (0, 0, 139)
 
 
 class Level:
@@ -142,6 +144,10 @@ class Level:
         self.drawHealthBar(self.fighter_1.health, 20, 20)
         self.drawHealthBar(self.fighter_2.health, 660, 20)
 
+        # Draw Player Attack Cooldown Bars
+        self.drawHeavyAttackCooldown(self.fighter_1.heavy_attack_cooldown, self.fighter_1.heavy_attack_max_cooldown, 20, 56)
+        self.drawHeavyAttackCooldown(self.fighter_2.heavy_attack_cooldown, self.fighter_2.heavy_attack_max_cooldown, 660, 56)
+
         # check defeat
         if not self.round_complete:
             if self.fighter_1.is_dead:
@@ -253,3 +259,8 @@ class Level:
         pygame.draw.rect(self.display_surface, RED, (x,y, 300, 30) )
         pygame.draw.rect(self.display_surface, YELLOW, (x,y, 300 * ratio, 30))
     
+    def drawHeavyAttackCooldown(self, cooldown_time, max_cooldown_time, x, y):
+        ratio = cooldown_time / max_cooldown_time
+        pygame.draw.rect(self.display_surface, WHITE, (x - 1, y - 1, 152, 10))
+        pygame.draw.rect(self.display_surface, DARK_BLUE, (x, y, 150, 8))
+        pygame.draw.rect(self.display_surface, PURPLE, (x, y, 150 * ratio, 8))
