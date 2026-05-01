@@ -1,5 +1,6 @@
 import pygame
 from src.settings import SCREEN_HEIGHT
+from src.settings import SCREEN_WIDTH
 from src.particles import spawn_exploding_particles
 
 class Fighter2():
@@ -61,6 +62,10 @@ class Fighter2():
         # music / audio
         self.sword_swing = swing_sound
         self.magic_swing = swing_sound
+
+        # knockback
+        self.knockback_velocity = 0
+        self.knockback_frames = 0
     
     def loadImages(self, sprite_sheet, sprite_animation_sheet):
         animation_list = []
@@ -83,6 +88,7 @@ class Fighter2():
         self.attack_type = 0
 
         key = pygame.key.get_pressed()
+
         if self.attacking is False and not self.is_dead:
             if self.player == 1:
                 if key[pygame.K_a]:
@@ -140,6 +146,13 @@ class Fighter2():
         # Update Position
         self.rect.x += dx
         self.rect.y += dy
+
+        # Applying Knockback Frames
+        if self.knockback_frames > 0:
+            self.rect.x += self.knockback_velocity
+            self.rect.x = max(0, min(SCREEN_WIDTH - self.rect.width, self.rect.x))
+            self.knockback_frames -= 1
+
        
     def attack(self, surface, target):
         # Only allow attack if not already attacking and cooldown is ready
@@ -188,11 +201,16 @@ class Fighter2():
                 # Check if this target has already been hit by the current attack
                 target_id = id(target)
                 if target_id not in self.attack_hit_targets:
-                    # Hit occurred! Deal damage and set hit state
-                    self.takeDamage()
+                    # Apply Damage
+                    target.takeDamage()
                     target.is_hit = True
                     spawn_exploding_particles(n=1000, particle_group=self.particle_group, pos=hit_point)
-                    print("HIT")
+                    
+                    # Apply Knockback
+                    knockback = -15 if self.flip else 15
+                    target.knockback_velocity = knockback
+                    target.knockback_frames = 5
+
                     # Mark this target as hit by the current attack
                     self.attack_hit_targets.add(target_id)
 
