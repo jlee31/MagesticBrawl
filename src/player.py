@@ -43,6 +43,7 @@ class Fighter2():
         self.attacking = False
         self.is_hit = False
         self.is_dead = False
+        self.is_blocking = False
         
         # Combat system
         self.attack_type = 0
@@ -87,6 +88,7 @@ class Fighter2():
         dx = 0
         dy = 0
         self.is_running = False
+        self.is_blocking = False
         self.attack_type = 0
 
         key = pygame.key.get_pressed()
@@ -97,6 +99,8 @@ class Fighter2():
         
         if self.attacking is False and not self.is_dead:
             if self.player == 1:
+
+                # Movement
                 if key[pygame.K_a]:
                     dx = -SPEED
                     self.is_running = True
@@ -106,13 +110,21 @@ class Fighter2():
                 if key[pygame.K_w] and not self.is_jumping:
                     self.vel_y = -30
                     self.is_jumping = True
+
+                # Attacking
                 if key[pygame.K_r]:
                     self.attack_type = 1
                     self.attack(pygame.display.get_surface(), target)
                 if key[pygame.K_t]:
                     self.attack_type = 2
                     self.attack(pygame.display.get_surface(), target)
+
+                # Blocking
+                if key[pygame.K_s]:
+                    self.is_blocking = True
+
             if self.player == 2:
+                    # Movement
                     if key[pygame.K_j]:
                         dx = -SPEED
                         self.is_running = True
@@ -122,12 +134,18 @@ class Fighter2():
                     if key[pygame.K_i] and not self.is_jumping:
                         self.vel_y = -30
                         self.is_jumping = True
+
+                    # Attacking
                     if key[pygame.K_o]:
                         self.attack_type = 1 
                         self.attack(pygame.display.get_surface(), target)
                     if key[pygame.K_p]:
                         self.attack_type = 2
                         self.attack(pygame.display.get_surface(), target)
+
+                    # Blocking
+                    if key[pygame.K_k]:
+                        self.is_blocking = True
 
         # Apply gravity
         self.vel_y += GRAVITY
@@ -208,8 +226,12 @@ class Fighter2():
                 target_id = id(target)
                 if target_id not in self.attack_hit_targets:
                     # Apply Damage
-                    target.takeDamage()
-                    target.is_hit = True
+                    if target.is_blocking:
+                        target.takeDamage(1)
+                    else:
+                        target.takeDamage(2)
+                        target.is_hit = True
+                
                     spawn_exploding_particles(n=1000, particle_group=self.particle_group, pos=hit_point)
                     
                     # Apply Knockback
@@ -224,13 +246,19 @@ class Fighter2():
                     # Mark this target as hit by the current attack
                     self.attack_hit_targets.add(target_id)
 
-    def takeDamage(self):
-        self.health -= 10
+    def takeDamage(self, type):
+        if type == 1:
+            self.health -= 10 * 0.3
+        if type == 2:
+            self.health -= 10
                 
     def draw(self, surface):
         img = pygame.transform.flip(self.image, self.flip, False)
         draw_x = self.rect.x - (self.offset[0] * self.image_scale)
         draw_y = self.rect.y - (self.offset[1] * self.image_scale)
+        if self.is_blocking:
+            img = img.copy()
+            img.fill((0, 80, 255, 0), special_flags=pygame.BLEND_RGB_ADD)
         surface.blit(img, (draw_x, draw_y))
         
         # Draw hitbox (for debugging)

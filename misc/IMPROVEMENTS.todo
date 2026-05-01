@@ -64,12 +64,12 @@ PHASE 2 — DEAD CODE REMOVAL (small, makes future work easier)
 PHASE 3 — QUICK GAMEPLAY WINS (high feel-per-line-of-code)
 ================================================================
 
-[ ] 12. Knockback on hit
+[x] 12. Knockback on hit
     - In Fighter2.attack, when a hit lands, push target a few px
       in attacker's facing direction
     - Currently hits feel weightless
 
-[ ] 13. Hit-stop / freeze frames
+[x] 13. Hit-stop / freeze frames
     - When a hit lands, skip 3-5 frames of position/animation
       updates on BOTH fighters
     - Standard fighting game juice
@@ -78,7 +78,7 @@ PHASE 3 — QUICK GAMEPLAY WINS (high feel-per-line-of-code)
     - On attack_type == 2 hit, offset blits by randint(-3, 3)
       for ~6 frames
 
-[ ] 15. Block mechanic
+[x] 15. Block mechanic
     - Hold S (P1) / K (P2) to block, reduces incoming damage
       by ~75%, plays a different anim (or just tints sprite)
 
