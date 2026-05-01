@@ -1,8 +1,10 @@
 import pygame
 import sys
+from random import randint
+
 from src.settings import SCREEN_WIDTH, SCREEN_HEIGHT
 from src.player import Fighter2
-from src.button import PlayButton, ResumeButton, SettingsButton, BackButton, ExitButton, VolumeButton
+from src.button import PlayButton, ResumeButton, SettingsButton, BackButton, ExitButton, VolumeButton, ScreenShakeToggle
 from src.playerData import WARRIOR_DATA, SORCERER_DATA
 
 YELLOW = (255,255,0)
@@ -82,15 +84,29 @@ class Level:
         self.exit_btn = ExitButton("Quit", 200, 40, (middle,360), 5)
         self.volume_btn = VolumeButton("Volume", 200, 40, (middle,280), 5)
         self.back_btn = BackButton("Back", 200, 40, (middle,200), 5)
-        
+        self.screen_shake_btn = ScreenShakeToggle("Shake: ON", 200, 40, (middle,440), 5)
+
         # Set level reference for all buttons
-        for btn in [self.play_btn, self.pause_btn, self.settings_btn, self.exit_btn, self.volume_btn, self.back_btn]:
+        for btn in [self.play_btn, self.pause_btn, self.settings_btn, self.exit_btn, self.volume_btn, self.back_btn, self.screen_shake_btn]:
             btn.level = self
 
         # Sprite Groups
         self.particle_group = pygame.sprite.Group()
+
+        # Screen Shake
+        self.screen_shake_frames = 0
+        self.screen_shake_enabled = True
+        self.shake_offset = (0,0)
        
     def run(self, dt, events):
+
+        # Determine screenshake value
+        if self.screen_shake_enabled and self.screen_shake_frames > 0:
+            self.screen_shake_frames -= 1
+            self.shake_offset = (randint(-3, 3), randint(-3, 3))
+        else:
+            self.shake_offset = (0, 0)
+
         # Handle all events in one place
         for event in events:
             if event.type == pygame.QUIT:
@@ -113,8 +129,8 @@ class Level:
         # Draw fighters
         self.fighter_1.animation_update()
         self.fighter_2.animation_update()
-        self.fighter_1.draw(self.display_surface)
-        self.fighter_2.draw(self.display_surface)
+        self.fighter_1.draw(self.display_surface, self.shake_offset)
+        self.fighter_2.draw(self.display_surface, self.shake_offset)
 
         # Draw particles (draw them after fighters so they appear on top)
         self.fighter_1.particle_group.draw(self.display_surface)
@@ -139,6 +155,13 @@ class Level:
                 # Only move fighters when countdown is done
                 self.fighter_1.move(target=self.fighter_2)
                 self.fighter_2.move(target=self.fighter_1)
+
+        # Screen Shake
+        for fighter in [self.fighter_1, self.fighter_2]:
+            if fighter.screen_shake_trigger:
+                self.screen_shake_frames = 6
+                fighter.screen_shake_trigger = False
+
 
         # Draw health bars last (on top of everything)
         self.drawHealthBar(self.fighter_1.health, 20, 20)
@@ -206,13 +229,15 @@ class Level:
         elif state == "settings":
             self.back_btn.draw(self.display_surface, self.game_state)
             self.volume_btn.draw(self.display_surface, self.game_state)
+            self.screen_shake_btn.draw(self.display_surface, self.game_state)
             self.exit_btn.draw(self.display_surface, self.game_state)
 
     def drawBg(self):
+        ox, oy = self.shake_offset
         for x in range(10):
             speed = 1
             for i in self.bgImages:
-                self.display_surface.blit(i, ((x * self.bgWidth) - self.scroll * speed, 0))
+                self.display_surface.blit(i, ((x * self.bgWidth) - self.scroll * speed + ox, oy))
                 speed += 0.05
 
     def draw_text(self, text, font, colour, x, y):
@@ -220,8 +245,9 @@ class Level:
         self.display_surface.blit(img, (x,y))
 
     def drawGround(self):
+        ox, oy = self.shake_offset
         for x in range(15):
-            self.display_surface.blit(self.ground_image, ((x * self.ground_width - self.scroll * 2), SCREEN_HEIGHT - self.ground_height))
+            self.display_surface.blit(self.ground_image, ((x * self.ground_width - self.scroll * 2) + ox, SCREEN_HEIGHT - self.ground_height + oy))
 
     def moveScreen(self):
         key = pygame.key.get_pressed()
