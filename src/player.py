@@ -49,6 +49,8 @@ class Fighter2():
         self.attack_type = 0
         self.attack_cooldown = 0
         self.health = 100
+        self.heavy_attack_cooldown = 180
+        self.heavy_attack_max_cooldown = 180
 
         self.hitstop_frames = 0
         
@@ -166,6 +168,9 @@ class Fighter2():
         # attack cooldown
         if self.attack_cooldown > 0:
             self.attack_cooldown -= 1
+
+        if self.heavy_attack_cooldown < self.heavy_attack_max_cooldown:
+            self.heavy_attack_cooldown += 1
         
         # Update Position
         self.rect.x += dx
@@ -179,11 +184,16 @@ class Fighter2():
 
        
     def attack(self, surface, target):
+        if self.attack_type == 2 and self.heavy_attack_cooldown < self.heavy_attack_max_cooldown:
+            return
+
         # Only allow attack if not already attacking and cooldown is ready
         if self.attack_cooldown == 0 and not self.attacking:
             self.attacking = True
             # Set a short cooldown to prevent immediate re-attack
             self.attack_cooldown = 50
+            if self.attack_type == 2:
+                self.heavy_attack_cooldown = 0
             if self.player == 1:
                 self.sword_swing.play()
             else:
