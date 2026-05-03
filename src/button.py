@@ -8,6 +8,7 @@ if TYPE_CHECKING:
 import pygame
 pygame.font.init()
 gui_font = pygame.font.Font("assets/fonts/turok.ttf",30)
+
 class Button:
 	def __init__(self,text,width,height,pos,elevation):
 		#Core attributes

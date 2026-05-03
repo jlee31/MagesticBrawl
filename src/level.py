@@ -6,6 +6,7 @@ from src.settings import SCREEN_WIDTH, SCREEN_HEIGHT
 from src.player import Fighter2
 from src.button import PlayButton, ResumeButton, SettingsButton, BackButton, ExitButton, VolumeButton, ScreenShakeToggle
 from src.playerData import WARRIOR_DATA, SORCERER_DATA
+from src.assets import Assets
 
 YELLOW = (255,255,0)
 RED = (255,0,0)
@@ -37,7 +38,7 @@ class Level:
         # Background Stuff
         self.bgImages = []
         for i in range(1,6):
-            image = pygame.image.load(f'assets/images/background/plx-{i}.png').convert_alpha()
+            image = Assets.image(f'assets/images/background/plx-{i}.png')
             scaled_image = pygame.transform.scale(image, (SCREEN_WIDTH, SCREEN_HEIGHT))
             self.bgImages.append(scaled_image)
         self.bgWidth = self.bgImages[0].get_width()
@@ -46,20 +47,20 @@ class Level:
         self.auto_scroll = True
         self.scroll_speed = 1
 
-        self.ground_image = pygame.image.load('assets/images/background/ground.png').convert_alpha()
+        self.ground_image = Assets.image('assets/images/background/ground.png')
         self.ground_width = self.ground_image.get_width()
         self.ground_height = self.ground_image.get_height()
 
         # Sprite Sheets
-        self.warrior_sheet = pygame.image.load("assets/images/warrior/warrior.png").convert_alpha()
+        self.warrior_sheet = Assets.image("assets/images/warrior/warrior.png")
         self.warrior_animation_steps = [10,8,1,7,7,3,7]
-        self.sorcerer_sheet = pygame.image.load("assets/images/sorcerer/Sprites/wizard.png").convert_alpha()
+        self.sorcerer_sheet = Assets.image("assets/images/sorcerer/Sprites/wizard.png")
         self.sorcerer_animation_steps = [8,8,1,8,8,3,7]
 
 
         # Images
         # Victory Image (will change later)
-        self.victory_image = pygame.image.load("assets/images/victory.png").convert_alpha()
+        self.victory_image = Assets.image("assets/images/victory.png")
         self.victory_width = self.victory_image.get_width()
 
         # music / audio
@@ -69,8 +70,8 @@ class Level:
         pygame.mixer.music.set_volume(0.3)  
 
         # player audio files
-        self.warrior_swing_audio = pygame.mixer.Sound("assets/audio/sword_swing.wav")
-        self.sorcerer_swing_audio = pygame.mixer.Sound("assets/audio/magic_swing.mp3")
+        self.warrior_swing_audio = Assets.sound("assets/audio/sword_swing.wav")
+        self.sorcerer_swing_audio = Assets.sound("assets/audio/magic_swing.mp3")
 
         # Players
         self.fighter_1 = Fighter2(1, 200, 280, False, WARRIOR_DATA, self.warrior_sheet, self.warrior_animation_steps, self.warrior_swing_audio)
