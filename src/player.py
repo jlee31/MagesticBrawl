@@ -4,7 +4,7 @@ from src.settings import SCREEN_WIDTH
 from src.particles import spawn_exploding_particles
 
 class Fighter2():
-    def __init__(self, player, start_x, start_y, flip, data, sprite_sheet, sprite_animation_sheet, swing_sound):
+    def __init__(self, player, start_x, start_y, flip, data, sprite_sheet, sprite_animation_sheet, swing_sound, controls):
         # Player Creation
         self.player = player
         
@@ -13,14 +13,14 @@ class Fighter2():
         self.mask_image = None           
 
         # Character properties
-        self.size = data[0]
-        self.image_scale = data[1]
-        self.offset = data[2]
-        self.player_speed = data[3]
-        self.player_jump_height = data[4]
-        self.attack_one_data = data[5]
-        self.attack_two_data = data[6]
-        self.attack_one_offset = data[7]
+        self.size = data.size
+        self.image_scale = data.scale
+        self.offset = data.offset
+        self.player_speed = data.speed
+        self.player_jump_height = data.jump_height
+        self.attack_one_data = data.attack_1_range
+        self.attack_two_data = data.attack_2_range
+        self.attack_one_offset = data.attack_offset
         
         # Animation system
         self.animation_list = self.loadImages(sprite_sheet, sprite_animation_sheet)
@@ -65,12 +65,17 @@ class Fighter2():
         pygame.time.set_timer(self.floating_particle_timer, 10)
 
         # music / audio
-        self.sword_swing = swing_sound
-        self.magic_swing = swing_sound
+        self.swing_sound = swing_sound
+
+        # controls
+        self.controls = controls
 
         # knockback
         self.knockback_velocity = 0
         self.knockback_frames = 0
+
+        # screen shake
+        self.screen_shake_trigger = False
     
     def loadImages(self, sprite_sheet, sprite_animation_sheet):
         animation_list = []
@@ -100,54 +105,28 @@ class Fighter2():
             return
         
         if self.attacking is False and not self.is_dead:
-            if self.player == 1:
+            # Movement
+            if key[self.controls["left"]]:
+                dx = -SPEED
+                self.is_running = True
+            if key[self.controls["right"]]:
+                dx = SPEED
+                self.is_running = True
+            if key[self.controls["jump"]] and not self.is_jumping:
+                self.vel_y = -30
+                self.is_jumping = True
 
-                # Movement
-                if key[pygame.K_a]:
-                    dx = -SPEED
-                    self.is_running = True
-                if key[pygame.K_d]:
-                    dx = SPEED
-                    self.is_running = True
-                if key[pygame.K_w] and not self.is_jumping:
-                    self.vel_y = -30
-                    self.is_jumping = True
+            # Attacking
+            if key[self.controls["attack1"]]:
+                self.attack_type = 1
+                self.attack(pygame.display.get_surface(), target)
+            if key[self.controls["attack2"]]:
+                self.attack_type = 2
+                self.attack(pygame.display.get_surface(), target)
 
-                # Attacking
-                if key[pygame.K_r]:
-                    self.attack_type = 1
-                    self.attack(pygame.display.get_surface(), target)
-                if key[pygame.K_t]:
-                    self.attack_type = 2
-                    self.attack(pygame.display.get_surface(), target)
-
-                # Blocking
-                if key[pygame.K_s]:
-                    self.is_blocking = True
-
-            if self.player == 2:
-                    # Movement
-                    if key[pygame.K_j]:
-                        dx = -SPEED
-                        self.is_running = True
-                    if key[pygame.K_l]:
-                        dx = SPEED
-                        self.is_running = True
-                    if key[pygame.K_i] and not self.is_jumping:
-                        self.vel_y = -30
-                        self.is_jumping = True
-
-                    # Attacking
-                    if key[pygame.K_o]:
-                        self.attack_type = 1 
-                        self.attack(pygame.display.get_surface(), target)
-                    if key[pygame.K_p]:
-                        self.attack_type = 2
-                        self.attack(pygame.display.get_surface(), target)
-
-                    # Blocking
-                    if key[pygame.K_k]:
-                        self.is_blocking = True
+            # Blocking
+            if key[self.controls["block"]]:
+                self.is_blocking = True
 
         # Apply gravity
         self.vel_y += GRAVITY
@@ -194,10 +173,7 @@ class Fighter2():
             self.attack_cooldown = 50
             if self.attack_type == 2:
                 self.heavy_attack_cooldown = 0
-            if self.player == 1:
-                self.sword_swing.play()
-            else:
-                self.magic_swing.play()
+            self.swing_sound.play()
             
             # Generate new attack ID and reset hit tracking
             self.current_attack_id += 1
@@ -211,11 +187,12 @@ class Fighter2():
         else:
             return  # No valid attack type
        
+        attack_width, attack_height = attack_data
         attacking_rect = pygame.Rect(
-                self.rect.centerx - (2 * self.rect.width * self.flip + self.attack_one_offset[0]),  
+                self.rect.centerx - (2 * self.rect.width * self.flip + self.attack_one_offset[0]),
                 self.rect.y - self.attack_one_offset[1],
-                attack_data[0],
-                attack_data[1]
+                attack_width,
+                attack_height
         )
 
         # Debug: Draw attack hitbox
@@ -241,6 +218,9 @@ class Fighter2():
                     else:
                         target.takeDamage(2)
                         target.is_hit = True
+                    
+                    if self.attack_type == 2:
+                        self.screen_shake_trigger = True
                 
                     spawn_exploding_particles(n=1000, particle_group=self.particle_group, pos=hit_point)
                     
@@ -262,10 +242,10 @@ class Fighter2():
         if type == 2:
             self.health -= 10
                 
-    def draw(self, surface):
+    def draw(self, surface, shake_offset=(0, 0)):
         img = pygame.transform.flip(self.image, self.flip, False)
-        draw_x = self.rect.x - (self.offset[0] * self.image_scale)
-        draw_y = self.rect.y - (self.offset[1] * self.image_scale)
+        draw_x = self.rect.x - (self.offset[0] * self.image_scale) + shake_offset[0]
+        draw_y = self.rect.y - (self.offset[1] * self.image_scale) + shake_offset[1]
         if self.is_blocking:
             img = img.copy()
             img.fill((0, 80, 255, 0), special_flags=pygame.BLEND_RGB_ADD)
