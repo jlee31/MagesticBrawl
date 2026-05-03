@@ -177,10 +177,13 @@ class Level:
                 self.score[1] += 1
                 self.round_complete = True
                 self.round_over_time = pygame.time.get_ticks()
+                print(self.score)
             elif self.fighter_2.is_dead:
                 self.score[0] += 1
                 self.round_complete = True
                 self.round_over_time = pygame.time.get_ticks()
+                print(self.score)
+            
         else:
             # Display Victory Image
             

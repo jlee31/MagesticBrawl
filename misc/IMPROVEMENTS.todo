@@ -74,7 +74,7 @@ PHASE 3 — QUICK GAMEPLAY WINS (high feel-per-line-of-code)
       updates on BOTH fighters
     - Standard fighting game juice
 
-[ ] 14. Screen shake on heavy hits
+[x] 14. Screen shake on heavy hits
     - On attack_type == 2 hit, offset blits by randint(-3, 3)
       for ~6 frames
 
@@ -86,7 +86,7 @@ PHASE 3 — QUICK GAMEPLAY WINS (high feel-per-line-of-code)
 PHASE 4 — ROUND / MATCH SYSTEM
 ================================================================
 
-[ ] 16. Best-of-3 match structure
+[x] 16. Best-of-3 match structure
     - Track rounds_won per fighter (not just self.score)
     - Declare match winner at 2 rounds won
     - "Round 1" / "Round 2" / "Final Round" intro text
