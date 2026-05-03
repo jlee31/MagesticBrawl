@@ -5,7 +5,7 @@ from random import randint
 from src.settings import SCREEN_WIDTH, SCREEN_HEIGHT
 from src.player import Fighter2
 from src.button import PlayButton, ResumeButton, SettingsButton, BackButton, ExitButton, VolumeButton, ScreenShakeToggle
-from src.playerData import WARRIOR_DATA, SORCERER_DATA
+from src.playerData import WARRIOR_DATA, SORCERER_DATA, P1_CONTROLS, P2_CONTROLS
 from src.assets import Assets
 
 YELLOW = (255,255,0)
@@ -54,9 +54,15 @@ class Level:
         # Sprite Sheets
         self.warrior_sheet = Assets.image("assets/images/warrior/warrior.png")
         self.warrior_animation_steps = [10,8,1,7,7,3,7]
+
         self.sorcerer_sheet = Assets.image("assets/images/sorcerer/Sprites/wizard.png")
         self.sorcerer_animation_steps = [8,8,1,8,8,3,7]
 
+        # self.huntress_sheet = Assets.image("assets/images/huntress/huntress.png")
+        # self.huntress_animation_steps = [...]
+
+        # self.wizard_sheet = Assets.image("assets/images/wizard/wizard.png")
+        # self.wizard_animation_steps = [...]
 
         # Images
         # Victory Image (will change later)
@@ -74,8 +80,8 @@ class Level:
         self.sorcerer_swing_audio = Assets.sound("assets/audio/magic_swing.mp3")
 
         # Players
-        self.fighter_1 = Fighter2(1, 200, 280, False, WARRIOR_DATA, self.warrior_sheet, self.warrior_animation_steps, self.warrior_swing_audio)
-        self.fighter_2 = Fighter2(2, 700, 280, True, SORCERER_DATA, self.sorcerer_sheet, self.sorcerer_animation_steps, self.sorcerer_swing_audio)
+        self.fighter_1 = Fighter2(1, 200, 280, False, WARRIOR_DATA, self.warrior_sheet, self.warrior_animation_steps, self.warrior_swing_audio, P1_CONTROLS)
+        self.fighter_2 = Fighter2(2, 700, 280, True, SORCERER_DATA, self.sorcerer_sheet, self.sorcerer_animation_steps, self.sorcerer_swing_audio, P2_CONTROLS)
    
         # buttons - using custom button classes that handle game state changes
         middle = SCREEN_WIDTH / 2 - 100
@@ -192,8 +198,8 @@ class Level:
             if pygame.time.get_ticks() - self.round_over_time > self.round_over_cooldown:
                 self.round_complete = False
                 self.intro_count = 3
-                self.fighter_1 = Fighter2(1, 200, 280, False, WARRIOR_DATA, self.warrior_sheet, self.warrior_animation_steps, self.warrior_swing_audio)
-                self.fighter_2 = Fighter2(2, 700, 280, True, SORCERER_DATA, self.sorcerer_sheet, self.sorcerer_animation_steps, self.sorcerer_swing_audio)
+                self.fighter_1 = Fighter2(1, 200, 280, False, WARRIOR_DATA, self.warrior_sheet, self.warrior_animation_steps, self.warrior_swing_audio, P1_CONTROLS)
+                self.fighter_2 = Fighter2(2, 700, 280, True, SORCERER_DATA, self.sorcerer_sheet, self.sorcerer_animation_steps, self.sorcerer_swing_audio, P2_CONTROLS)
 
         # Menu / Options
         if self.game_state == "main_screen":

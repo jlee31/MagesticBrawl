@@ -4,7 +4,7 @@ from src.settings import SCREEN_WIDTH
 from src.particles import spawn_exploding_particles
 
 class Fighter2():
-    def __init__(self, player, start_x, start_y, flip, data, sprite_sheet, sprite_animation_sheet, swing_sound):
+    def __init__(self, player, start_x, start_y, flip, data, sprite_sheet, sprite_animation_sheet, swing_sound, controls):
         # Player Creation
         self.player = player
         
@@ -65,8 +65,10 @@ class Fighter2():
         pygame.time.set_timer(self.floating_particle_timer, 10)
 
         # music / audio
-        self.sword_swing = swing_sound
-        self.magic_swing = swing_sound
+        self.swing_sound = swing_sound
+
+        # controls
+        self.controls = controls
 
         # knockback
         self.knockback_velocity = 0
@@ -103,54 +105,28 @@ class Fighter2():
             return
         
         if self.attacking is False and not self.is_dead:
-            if self.player == 1:
+            # Movement
+            if key[self.controls["left"]]:
+                dx = -SPEED
+                self.is_running = True
+            if key[self.controls["right"]]:
+                dx = SPEED
+                self.is_running = True
+            if key[self.controls["jump"]] and not self.is_jumping:
+                self.vel_y = -30
+                self.is_jumping = True
 
-                # Movement
-                if key[pygame.K_a]:
-                    dx = -SPEED
-                    self.is_running = True
-                if key[pygame.K_d]:
-                    dx = SPEED
-                    self.is_running = True
-                if key[pygame.K_w] and not self.is_jumping:
-                    self.vel_y = -30
-                    self.is_jumping = True
+            # Attacking
+            if key[self.controls["attack1"]]:
+                self.attack_type = 1
+                self.attack(pygame.display.get_surface(), target)
+            if key[self.controls["attack2"]]:
+                self.attack_type = 2
+                self.attack(pygame.display.get_surface(), target)
 
-                # Attacking
-                if key[pygame.K_r]:
-                    self.attack_type = 1
-                    self.attack(pygame.display.get_surface(), target)
-                if key[pygame.K_t]:
-                    self.attack_type = 2
-                    self.attack(pygame.display.get_surface(), target)
-
-                # Blocking
-                if key[pygame.K_s]:
-                    self.is_blocking = True
-
-            if self.player == 2:
-                    # Movement
-                    if key[pygame.K_j]:
-                        dx = -SPEED
-                        self.is_running = True
-                    if key[pygame.K_l]:
-                        dx = SPEED
-                        self.is_running = True
-                    if key[pygame.K_i] and not self.is_jumping:
-                        self.vel_y = -30
-                        self.is_jumping = True
-
-                    # Attacking
-                    if key[pygame.K_o]:
-                        self.attack_type = 1 
-                        self.attack(pygame.display.get_surface(), target)
-                    if key[pygame.K_p]:
-                        self.attack_type = 2
-                        self.attack(pygame.display.get_surface(), target)
-
-                    # Blocking
-                    if key[pygame.K_k]:
-                        self.is_blocking = True
+            # Blocking
+            if key[self.controls["block"]]:
+                self.is_blocking = True
 
         # Apply gravity
         self.vel_y += GRAVITY
@@ -197,10 +173,7 @@ class Fighter2():
             self.attack_cooldown = 50
             if self.attack_type == 2:
                 self.heavy_attack_cooldown = 0
-            if self.player == 1:
-                self.sword_swing.play()
-            else:
-                self.magic_swing.play()
+            self.swing_sound.play()
             
             # Generate new attack ID and reset hit tracking
             self.current_attack_id += 1
