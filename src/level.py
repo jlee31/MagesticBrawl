@@ -1,9 +1,12 @@
 import pygame
 import sys
+from random import randint
+
 from src.settings import SCREEN_WIDTH, SCREEN_HEIGHT
 from src.player import Fighter2
-from src.button import PlayButton, ResumeButton, SettingsButton, BackButton, ExitButton, VolumeButton
-from src.playerData import WARRIOR_DATA, SORCERER_DATA
+from src.button import PlayButton, ResumeButton, SettingsButton, BackButton, ExitButton, VolumeButton, ScreenShakeToggle
+from src.playerData import WARRIOR_DATA, SORCERER_DATA, P1_CONTROLS, P2_CONTROLS
+from src.assets import Assets
 
 YELLOW = (255,255,0)
 RED = (255,0,0)
@@ -35,7 +38,7 @@ class Level:
         # Background Stuff
         self.bgImages = []
         for i in range(1,6):
-            image = pygame.image.load(f'assets/images/background/plx-{i}.png').convert_alpha()
+            image = Assets.image(f'assets/images/background/plx-{i}.png')
             scaled_image = pygame.transform.scale(image, (SCREEN_WIDTH, SCREEN_HEIGHT))
             self.bgImages.append(scaled_image)
         self.bgWidth = self.bgImages[0].get_width()
@@ -44,20 +47,26 @@ class Level:
         self.auto_scroll = True
         self.scroll_speed = 1
 
-        self.ground_image = pygame.image.load('assets/images/background/ground.png').convert_alpha()
+        self.ground_image = Assets.image('assets/images/background/ground.png')
         self.ground_width = self.ground_image.get_width()
         self.ground_height = self.ground_image.get_height()
 
         # Sprite Sheets
-        self.warrior_sheet = pygame.image.load("assets/images/warrior/warrior.png").convert_alpha()
+        self.warrior_sheet = Assets.image("assets/images/warrior/warrior.png")
         self.warrior_animation_steps = [10,8,1,7,7,3,7]
-        self.sorcerer_sheet = pygame.image.load("assets/images/sorcerer/Sprites/wizard.png").convert_alpha()
+
+        self.sorcerer_sheet = Assets.image("assets/images/sorcerer/Sprites/wizard.png")
         self.sorcerer_animation_steps = [8,8,1,8,8,3,7]
 
+        # self.huntress_sheet = Assets.image("assets/images/huntress/huntress.png")
+        # self.huntress_animation_steps = [...]
+
+        # self.wizard_sheet = Assets.image("assets/images/wizard/wizard.png")
+        # self.wizard_animation_steps = [...]
 
         # Images
         # Victory Image (will change later)
-        self.victory_image = pygame.image.load("assets/images/victory.png").convert_alpha()
+        self.victory_image = Assets.image("assets/images/victory.png")
         self.victory_width = self.victory_image.get_width()
 
         # music / audio
@@ -67,12 +76,12 @@ class Level:
         pygame.mixer.music.set_volume(0.3)  
 
         # player audio files
-        self.warrior_swing_audio = pygame.mixer.Sound("assets/audio/sword_swing.wav")
-        self.sorcerer_swing_audio = pygame.mixer.Sound("assets/audio/magic_swing.mp3")
+        self.warrior_swing_audio = Assets.sound("assets/audio/sword_swing.wav")
+        self.sorcerer_swing_audio = Assets.sound("assets/audio/magic_swing.mp3")
 
         # Players
-        self.fighter_1 = Fighter2(1, 200, 280, False, WARRIOR_DATA, self.warrior_sheet, self.warrior_animation_steps, self.warrior_swing_audio)
-        self.fighter_2 = Fighter2(2, 700, 280, True, SORCERER_DATA, self.sorcerer_sheet, self.sorcerer_animation_steps, self.sorcerer_swing_audio)
+        self.fighter_1 = Fighter2(1, 200, 280, False, WARRIOR_DATA, self.warrior_sheet, self.warrior_animation_steps, self.warrior_swing_audio, P1_CONTROLS)
+        self.fighter_2 = Fighter2(2, 700, 280, True, SORCERER_DATA, self.sorcerer_sheet, self.sorcerer_animation_steps, self.sorcerer_swing_audio, P2_CONTROLS)
    
         # buttons - using custom button classes that handle game state changes
         middle = SCREEN_WIDTH / 2 - 100
@@ -82,15 +91,29 @@ class Level:
         self.exit_btn = ExitButton("Quit", 200, 40, (middle,360), 5)
         self.volume_btn = VolumeButton("Volume", 200, 40, (middle,280), 5)
         self.back_btn = BackButton("Back", 200, 40, (middle,200), 5)
-        
+        self.screen_shake_btn = ScreenShakeToggle("Shake: ON", 200, 40, (middle,440), 5)
+
         # Set level reference for all buttons
-        for btn in [self.play_btn, self.pause_btn, self.settings_btn, self.exit_btn, self.volume_btn, self.back_btn]:
+        for btn in [self.play_btn, self.pause_btn, self.settings_btn, self.exit_btn, self.volume_btn, self.back_btn, self.screen_shake_btn]:
             btn.level = self
 
         # Sprite Groups
         self.particle_group = pygame.sprite.Group()
+
+        # Screen Shake
+        self.screen_shake_frames = 0
+        self.screen_shake_enabled = True
+        self.shake_offset = (0,0)
        
     def run(self, dt, events):
+
+        # Determine screenshake value
+        if self.screen_shake_enabled and self.screen_shake_frames > 0:
+            self.screen_shake_frames -= 1
+            self.shake_offset = (randint(-3, 3), randint(-3, 3))
+        else:
+            self.shake_offset = (0, 0)
+
         # Handle all events in one place
         for event in events:
             if event.type == pygame.QUIT:
@@ -113,8 +136,8 @@ class Level:
         # Draw fighters
         self.fighter_1.animation_update()
         self.fighter_2.animation_update()
-        self.fighter_1.draw(self.display_surface)
-        self.fighter_2.draw(self.display_surface)
+        self.fighter_1.draw(self.display_surface, self.shake_offset)
+        self.fighter_2.draw(self.display_surface, self.shake_offset)
 
         # Draw particles (draw them after fighters so they appear on top)
         self.fighter_1.particle_group.draw(self.display_surface)
@@ -140,6 +163,13 @@ class Level:
                 self.fighter_1.move(target=self.fighter_2)
                 self.fighter_2.move(target=self.fighter_1)
 
+        # Screen Shake
+        for fighter in [self.fighter_1, self.fighter_2]:
+            if fighter.screen_shake_trigger:
+                self.screen_shake_frames = 6
+                fighter.screen_shake_trigger = False
+
+
         # Draw health bars last (on top of everything)
         self.drawHealthBar(self.fighter_1.health, 20, 20)
         self.drawHealthBar(self.fighter_2.health, 660, 20)
@@ -154,10 +184,13 @@ class Level:
                 self.score[1] += 1
                 self.round_complete = True
                 self.round_over_time = pygame.time.get_ticks()
+                print(self.score)
             elif self.fighter_2.is_dead:
                 self.score[0] += 1
                 self.round_complete = True
                 self.round_over_time = pygame.time.get_ticks()
+                print(self.score)
+            
         else:
             # Display Victory Image
             
@@ -165,8 +198,8 @@ class Level:
             if pygame.time.get_ticks() - self.round_over_time > self.round_over_cooldown:
                 self.round_complete = False
                 self.intro_count = 3
-                self.fighter_1 = Fighter2(1, 200, 280, False, WARRIOR_DATA, self.warrior_sheet, self.warrior_animation_steps, self.warrior_swing_audio)
-                self.fighter_2 = Fighter2(2, 700, 280, True, SORCERER_DATA, self.sorcerer_sheet, self.sorcerer_animation_steps, self.sorcerer_swing_audio)
+                self.fighter_1 = Fighter2(1, 200, 280, False, WARRIOR_DATA, self.warrior_sheet, self.warrior_animation_steps, self.warrior_swing_audio, P1_CONTROLS)
+                self.fighter_2 = Fighter2(2, 700, 280, True, SORCERER_DATA, self.sorcerer_sheet, self.sorcerer_animation_steps, self.sorcerer_swing_audio, P2_CONTROLS)
 
         # Menu / Options
         if self.game_state == "main_screen":
@@ -206,13 +239,15 @@ class Level:
         elif state == "settings":
             self.back_btn.draw(self.display_surface, self.game_state)
             self.volume_btn.draw(self.display_surface, self.game_state)
+            self.screen_shake_btn.draw(self.display_surface, self.game_state)
             self.exit_btn.draw(self.display_surface, self.game_state)
 
     def drawBg(self):
+        ox, oy = self.shake_offset
         for x in range(10):
             speed = 1
             for i in self.bgImages:
-                self.display_surface.blit(i, ((x * self.bgWidth) - self.scroll * speed, 0))
+                self.display_surface.blit(i, ((x * self.bgWidth) - self.scroll * speed + ox, oy))
                 speed += 0.05
 
     def draw_text(self, text, font, colour, x, y):
@@ -220,8 +255,9 @@ class Level:
         self.display_surface.blit(img, (x,y))
 
     def drawGround(self):
+        ox, oy = self.shake_offset
         for x in range(15):
-            self.display_surface.blit(self.ground_image, ((x * self.ground_width - self.scroll * 2), SCREEN_HEIGHT - self.ground_height))
+            self.display_surface.blit(self.ground_image, ((x * self.ground_width - self.scroll * 2) + ox, SCREEN_HEIGHT - self.ground_height + oy))
 
     def moveScreen(self):
         key = pygame.key.get_pressed()
