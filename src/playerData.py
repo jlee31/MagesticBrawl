@@ -1,5 +1,6 @@
 # ! Load Character Data
 from dataclasses import dataclass
+from pygame.locals import K_a, K_d, K_w, K_r, K_t, K_j, K_l, K_i, K_o, K_p, K_s, K_k
 
 @dataclass
 class CHARACTER_DATA:
@@ -11,6 +12,9 @@ class CHARACTER_DATA:
     attack_1_range: list
     attack_2_range: list
     attack_offset: list
+
+P1_CONTROLS = {"left": K_a, "right": K_d, "jump": K_w, "attack1": K_r, "attack2": K_t, "block": K_s}
+P2_CONTROLS = {"left": K_j, "right": K_l, "jump": K_i, "attack1": K_o, "attack2": K_p, "block": K_k}
 
 # Warrior 
 WARRIOR_SIZE = 162
