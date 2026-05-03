@@ -13,14 +13,14 @@ class Fighter2():
         self.mask_image = None           
 
         # Character properties
-        self.size = data[0]
-        self.image_scale = data[1]
-        self.offset = data[2]
-        self.player_speed = data[3]
-        self.player_jump_height = data[4]
-        self.attack_one_data = data[5]
-        self.attack_two_data = data[6]
-        self.attack_one_offset = data[7]
+        self.size = data.size
+        self.image_scale = data.scale
+        self.offset = data.offset
+        self.player_speed = data.speed
+        self.player_jump_height = data.jump_height
+        self.attack_one_data = data.attack_1_range
+        self.attack_two_data = data.attack_2_range
+        self.attack_one_offset = data.attack_offset
         
         # Animation system
         self.animation_list = self.loadImages(sprite_sheet, sprite_animation_sheet)
@@ -214,11 +214,12 @@ class Fighter2():
         else:
             return  # No valid attack type
        
+        attack_width, attack_height = attack_data
         attacking_rect = pygame.Rect(
-                self.rect.centerx - (2 * self.rect.width * self.flip + self.attack_one_offset[0]),  
+                self.rect.centerx - (2 * self.rect.width * self.flip + self.attack_one_offset[0]),
                 self.rect.y - self.attack_one_offset[1],
-                attack_data[0],
-                attack_data[1]
+                attack_width,
+                attack_height
         )
 
         # Debug: Draw attack hitbox
