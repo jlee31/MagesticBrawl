@@ -241,7 +241,7 @@ class Fighter2():
         if type == 1:
             self.health -= 10 * 0.3
         if type == 2:
-            self.health -= 10
+            self.health -= 50 #50 for testing, 10 regular
                 
     def draw(self, surface, shake_offset=(0, 0)):
         img = pygame.transform.flip(self.image, self.flip, False)
