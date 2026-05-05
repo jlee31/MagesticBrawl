@@ -29,26 +29,27 @@ class AIController:
             elapsed = pygame.time.get_ticks() - self.state_timer  # now reflects new state
 
         if self.state == "idle":
+            fighter.is_running = False
             if elapsed > self.idle_duration:
-                self.enter_state("approach")  # done waiting, go do something
+                self.enter_state("approach")
                 self.idle_duration = randint(500,2000)
-                
-        elif self.state == "approach": # moves toward player if far away from x amount
-            # so we find the distance between the players and if its greater than 200 we go closer
+
+        elif self.state == "approach":
             distance = target.rect.x - fighter.rect.x
+            fighter.flip = distance < 0
             if abs(distance) < 200:
                 self.enter_state("attack")
 
-            if distance > 200: # move right
-                # move the player to closer to the opponent
-                fighter.vel_x += 10
+            if distance > 200:
+                fighter.rect.x += 10
+                fighter.is_running = True
 
-            if distance < -200: # move left
-                # move the player closer to the opponent the other way
-                fighter.vel_x -= 10
-
+            if distance < -200:
+                fighter.rect.x -= 10
+                fighter.is_running = True
 
         elif self.state == "attack":
+            fighter.is_running = False
             attack_type = randint(1,2)
             fighter.attack_type = attack_type
             fighter.attack(pygame.display.get_surface(), target)
@@ -56,12 +57,15 @@ class AIController:
 
         elif self.state == "retreat":
             distance = target.rect.x - fighter.rect.x
-            if distance < 0: # move left
-                fighter.vel_x += 10
-                
-            if distance > 0: # move right
-                fighter.vel_x -= 10
-            
+            fighter.flip = distance < 0
+            if distance < 0:
+                fighter.rect.x += 10
+                fighter.is_running = True
+
+            if distance > 0:
+                fighter.rect.x -= 10
+                fighter.is_running = True
+
             if elapsed > 500:
                 self.enter_state("idle")
 

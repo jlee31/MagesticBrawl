@@ -90,6 +90,9 @@ class BackButton(Button):
             print("Going back...")
             assert self.level
             self.level.game_state = "main_screen"
+        elif game_state == "character_select":
+            assert self.level
+            self.level.game_state = "main_screen"
 
 class ExitButton(Button):
     def handle_button_action(self, game_state):
@@ -138,3 +141,11 @@ class CharacterButton(Button):
     def handle_button_action(self, game_state):
         if game_state == "character_select":
             self.was_clicked = True
+
+class AIButton(Button):
+
+    def handle_button_action(self, game_state):
+        assert(self.level)
+        print("P2 is now AI")
+        self.level.p2_isHuman = not self.level.p2_isHuman
+
