@@ -5,7 +5,7 @@ from random import randint
 from src.settings import SCREEN_WIDTH, SCREEN_HEIGHT
 from src.player import Fighter2
 from src.button import PlayButton, ResumeButton, SettingsButton, BackButton, ExitButton, VolumeButton, ScreenShakeToggle
-from src.playerData import WARRIOR_DATA, SORCERER_DATA, P1_CONTROLS, P2_CONTROLS
+from src.playerData import WARRIOR_DATA, SORCERER_DATA, P1_CONTROLS, P2_CONTROLS, OLD_WIZARD_DATA, HUNTRESS_DATA
 from src.assets import Assets
 
 YELLOW = (255,255,0)
@@ -58,11 +58,11 @@ class Level:
         self.sorcerer_sheet = Assets.image("assets/images/sorcerer/Sprites/wizard.png")
         self.sorcerer_animation_steps = [8,8,1,8,8,3,7]
 
-        # self.huntress_sheet = Assets.image("assets/images/huntress/huntress.png")
-        # self.huntress_animation_steps = [...]
+        self.huntress_sheet = Assets.image("assets/images/huntress/huntress.png")
+        self.huntress_animation_steps = [8,8,2,5,5,3,8]  # Idle,Run,Jump,Attack1,Attack2,Hit,Death
 
-        # self.wizard_sheet = Assets.image("assets/images/wizard/wizard.png")
-        # self.wizard_animation_steps = [...]
+        self.wizard_sheet = Assets.image("assets/images/old-wizard/old-wizard.png")
+        self.wizard_animation_steps = [6,8,2,8,8,4,7]  # Idle,Run,Jump,Attack1,Attack2,Hit,Death
 
         # Images
         # Victory Image (will change later)
@@ -78,10 +78,13 @@ class Level:
         # player audio files
         self.warrior_swing_audio = Assets.sound("assets/audio/sword_swing.wav")
         self.sorcerer_swing_audio = Assets.sound("assets/audio/magic_swing.mp3")
+        self.old_wizard_swing_audio = Assets.sound("assets/audio/magic_swing.mp3")
 
         # Players
-        self.fighter_1 = Fighter2(1, 200, 280, False, WARRIOR_DATA, self.warrior_sheet, self.warrior_animation_steps, self.warrior_swing_audio, P1_CONTROLS)
-        self.fighter_2 = Fighter2(2, 700, 280, True, SORCERER_DATA, self.sorcerer_sheet, self.sorcerer_animation_steps, self.sorcerer_swing_audio, P2_CONTROLS)
+        # self.fighter_1 = Fighter2(1, 200, 280, False, WARRIOR_DATA, self.warrior_sheet, self.warrior_animation_steps, self.warrior_swing_audio, P1_CONTROLS)
+        # self.fighter_2 = Fighter2(2, 700, 280, True, SORCERER_DATA, self.sorcerer_sheet, self.sorcerer_animation_steps, self.sorcerer_swing_audio, P2_CONTROLS)
+        self.fighter_1 = Fighter2(1, 200, 280, False, HUNTRESS_DATA, self.huntress_sheet, self.huntress_animation_steps, self.warrior_swing_audio, P1_CONTROLS)
+        self.fighter_2 = Fighter2(2, 700, 280, True, OLD_WIZARD_DATA, self.wizard_sheet, self.wizard_animation_steps, self.old_wizard_swing_audio, P2_CONTROLS)
    
         # buttons - using custom button classes that handle game state changes
         middle = SCREEN_WIDTH / 2 - 100
