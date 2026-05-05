@@ -161,8 +161,7 @@ class Fighter2():
             self.rect.x += self.knockback_velocity
             self.rect.x = max(0, min(SCREEN_WIDTH - self.rect.width, self.rect.x))
             self.knockback_frames -= 1
-
-       
+   
     def attack(self, surface, target):
         if self.attack_type == 2 and self.heavy_attack_cooldown < self.heavy_attack_max_cooldown:
             return
@@ -207,7 +206,7 @@ class Fighter2():
             target_draw_y = target.rect.y - (target.offset[1] * target.image_scale)
             
             # Check if the attacking rectangle overlaps with the target mask
-            hit_point = self._rectOverlapsMask(attacking_rect, target_mask, target_draw_x, target_draw_y)
+            hit_point = self.rectOverlapMask(attacking_rect, target_mask, target_draw_x, target_draw_y)
             
             if hit_point:
                 # Check if this target has already been hit by the current attack
@@ -241,7 +240,7 @@ class Fighter2():
         if type == 1:
             self.health -= 10 * 0.3
         if type == 2:
-            self.health -= 50 #50 for testing, 10 regular
+            self.health -= 10 #50 for testing, 10 regular
                 
     def draw(self, surface, shake_offset=(0, 0)):
         img = pygame.transform.flip(self.image, self.flip, False)
@@ -337,7 +336,7 @@ class Fighter2():
     def getMask(self):
         return self.player_mask
 
-    def _rectOverlapsMask(self, rect, mask, mask_x, mask_y):
+    def rectOverlapMask(self, rect, mask, mask_x, mask_y):
         # Create a mask from the attacking rectangle
         attack_mask = pygame.mask.Mask((rect.width, rect.height))
         attack_mask.fill()  # Fill the entire attack mask
