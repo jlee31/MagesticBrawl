@@ -36,6 +36,9 @@ class Level:
         self.p1_cursor = 0  # which character P1 is hovering over
         self.p2_cursor = 0
 
+        self.round_winner = 0 # 1 for P1, 2 for P2
+        self.round_number = 1
+
         self.countdown_font = pygame.font.Font("assets/fonts/turok.ttf", 80)
         self.score_font = pygame.font.Font("assets/fonts/turok.ttf", 30)
         self.menu_font = pygame.font.Font("assets/fonts/turok.ttf", 100)
@@ -186,6 +189,15 @@ class Level:
                     self.intro_count -= 1
                     self.last_count_update = pygame.time.get_ticks()
                     print(self.intro_count)
+                # Draw round label above countdown
+                if self.score[0] == 2 and self.score[1] == 2:
+                    round_label = "Final Round"
+                else:
+                    round_label = f"Round {self.round_number}"
+                label_surface = self.score_font.render(round_label, True, (255, 255, 255))
+                label_rect = label_surface.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 70))
+                self.display_surface.blit(label_surface, label_rect)
+
                 # Draw countdown text
                 countdown_text = str(self.intro_count) if self.intro_count > 0 else "FIGHT!"
                 text_surface = self.countdown_font.render(countdown_text, True, (255,255,255))
@@ -217,22 +229,45 @@ class Level:
                 self.score[1] += 1
                 self.round_complete = True
                 self.round_over_time = pygame.time.get_ticks()
+                
+                # print player 2 wins
+                self.round_winner = 2
+ 
                 print(self.score)
+
             elif self.fighter_2.is_dead:
                 self.score[0] += 1
                 self.round_complete = True
                 self.round_over_time = pygame.time.get_ticks()
+                
+                # print player 1 wins
+                self.round_winner = 1
+
                 print(self.score)
             
         else:
-            # Display Victory Image
-            
-            self.display_surface.blit(self.victory_image, (int(SCREEN_WIDTH / 2 - self.victory_width / 2), 250))
-            if pygame.time.get_ticks() - self.round_over_time > self.round_over_cooldown:
-                self.round_complete = False
-                self.intro_count = 3
-                self.fighter_1 = Fighter2(1, 200, 280, False, WARRIOR_DATA, self.warrior_sheet, self.warrior_animation_steps, self.warrior_swing_audio, P1_CONTROLS)
-                self.fighter_2 = Fighter2(2, 700, 280, True, SORCERER_DATA, self.sorcerer_sheet, self.sorcerer_animation_steps, self.sorcerer_swing_audio, P2_CONTROLS)
+
+            if self.score[0] == 3 or self.score[1] == 3:
+                self.display_surface.blit(self.victory_image, (int(SCREEN_WIDTH / 2 - self.victory_width / 2), 250))
+                if pygame.time.get_ticks() - self.round_over_time > self.round_over_cooldown:
+                    self.round_complete = False
+                    self.round_winner = 0
+                    self.round_number = 1
+                    self.score = [0, 0]
+                    self.game_state = "main_screen"
+                    self.playing = False
+            else:
+                if self.round_winner == 1:
+                    self.draw_text(text="Player 1 Wins", font=self.score_font, colour=RED, x=SCREEN_WIDTH // 2 - 95, y=SCREEN_HEIGHT // 2 - 10)
+                else:
+                    self.draw_text(text="Player 2 Wins", font=self.score_font, colour=RED, x=SCREEN_WIDTH // 2 - 95, y=SCREEN_HEIGHT // 2 - 10)
+
+                if pygame.time.get_ticks() - self.round_over_time > self.round_over_cooldown:
+                    self.round_complete = False
+                    self.intro_count = 3
+                    self.round_winner = 0
+                    self.round_number += 1
+                    self._spawn_fighters()
 
         # Menu / Options
         if self.game_state == "main_screen":
@@ -316,6 +351,8 @@ class Level:
 
         # Once both confirmed, spawn fighters and start
         if self.p1_confirmed and self.p2_confirmed:
+            self.score = [0, 0]
+            self.round_number = 1
             self._spawn_fighters()
             self.p1_confirmed = False
             self.p2_confirmed = False
