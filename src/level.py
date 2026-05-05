@@ -4,7 +4,7 @@ from random import randint
 
 from src.settings import SCREEN_WIDTH, SCREEN_HEIGHT
 from src.player import Fighter2
-from src.button import PlayButton, ResumeButton, SettingsButton, BackButton, ExitButton, VolumeButton, ScreenShakeToggle
+from src.button import PlayButton, ResumeButton, SettingsButton, BackButton, ExitButton, VolumeButton, ScreenShakeToggle, CharacterButton
 from src.playerData import WARRIOR_DATA, SORCERER_DATA, P1_CONTROLS, P2_CONTROLS, OLD_WIZARD_DATA, HUNTRESS_DATA
 from src.assets import Assets
 
@@ -20,7 +20,7 @@ class Level:
         self.playing = False
         # get the display surface
         self.display_surface = pygame.display.get_surface()
-        self.game_states = ["main_screen", "pause", "loading", "fighting", "settings"]
+        self.game_states = ["main_screen", "character_select","pause", "loading", "fighting", "settings"]
         self.game_state = self.game_states[0]
 
         self.intro_count = 4
@@ -29,11 +29,18 @@ class Level:
         self.round_complete = False
         self.round_over_cooldown = 5000
     
+        self.p1_selection = 0
+        self.p2_selection = 0
+        self.p1_confirmed = False
+        self.p2_confirmed = False
+        self.p1_cursor = 0  # which character P1 is hovering over
+        self.p2_cursor = 0
 
         self.countdown_font = pygame.font.Font("assets/fonts/turok.ttf", 80)
         self.score_font = pygame.font.Font("assets/fonts/turok.ttf", 30)
         self.menu_font = pygame.font.Font("assets/fonts/turok.ttf", 100)
         self.menu_buttons_font = pygame.font.Font("assets/fonts/turok.ttf", 30)
+        self.subtitle_font = pygame.font.Font("assets/fonts/turok.ttf", 50)
 
         # Background Stuff
         self.bgImages = []
@@ -80,9 +87,18 @@ class Level:
         self.sorcerer_swing_audio = Assets.sound("assets/audio/magic_swing.mp3")
         self.old_wizard_swing_audio = Assets.sound("assets/audio/magic_swing.mp3")
 
+        # Character roster
+        self.roster = [
+            {"name": "Warrior",    "data": WARRIOR_DATA,    "sheet": self.warrior_sheet,  "steps": self.warrior_animation_steps,  "audio": self.warrior_swing_audio},
+            {"name": "Sorcerer",   "data": SORCERER_DATA,   "sheet": self.sorcerer_sheet, "steps": self.sorcerer_animation_steps, "audio": self.sorcerer_swing_audio},
+            {"name": "Huntress",   "data": HUNTRESS_DATA,   "sheet": self.huntress_sheet, "steps": self.huntress_animation_steps, "audio": self.warrior_swing_audio},
+            {"name": "Old Wizard", "data": OLD_WIZARD_DATA, "sheet": self.wizard_sheet,   "steps": self.wizard_animation_steps,   "audio": self.old_wizard_swing_audio},
+        ]
+
+        self.char_buttons_p1 = []
+        self.char_buttons_p2 = []
+
         # Players
-        # self.fighter_1 = Fighter2(1, 200, 280, False, WARRIOR_DATA, self.warrior_sheet, self.warrior_animation_steps, self.warrior_swing_audio, P1_CONTROLS)
-        # self.fighter_2 = Fighter2(2, 700, 280, True, SORCERER_DATA, self.sorcerer_sheet, self.sorcerer_animation_steps, self.sorcerer_swing_audio, P2_CONTROLS)
         self.fighter_1 = Fighter2(1, 200, 280, False, HUNTRESS_DATA, self.huntress_sheet, self.huntress_animation_steps, self.warrior_swing_audio, P1_CONTROLS)
         self.fighter_2 = Fighter2(2, 700, 280, True, OLD_WIZARD_DATA, self.wizard_sheet, self.wizard_animation_steps, self.old_wizard_swing_audio, P2_CONTROLS)
    
@@ -127,10 +143,24 @@ class Level:
                     if self.game_state == "fighting":
                         self.game_state = "pause"
                         self.playing = False
-                        print("Game paused")
                     elif self.game_state == "pause":
                         self.game_state = "fighting"
-                        print("Game resumed")
+                elif self.game_state == "character_select":
+                    roster_len = len(self.roster)
+                    if event.key == pygame.K_a:
+                        self.p1_cursor = (self.p1_cursor - 1) % roster_len
+                    elif event.key == pygame.K_d:
+                        self.p1_cursor = (self.p1_cursor + 1) % roster_len
+                    elif event.key == pygame.K_w:
+                        self.p1_selection = self.p1_cursor
+                        self.p1_confirmed = True
+                    elif event.key == pygame.K_j:
+                        self.p2_cursor = (self.p2_cursor - 1) % roster_len
+                    elif event.key == pygame.K_l:
+                        self.p2_cursor = (self.p2_cursor + 1) % roster_len
+                    elif event.key == pygame.K_i:
+                        self.p2_selection = self.p2_cursor
+                        self.p2_confirmed = True
         
         # Draw background first
         self.drawBg()
@@ -207,6 +237,8 @@ class Level:
         # Menu / Options
         if self.game_state == "main_screen":
             self.home_screen()
+        elif self.game_state == "character_select":
+            self.character_select_screen()
         elif self.game_state == "pause":
             self.playing = False
             self.pause_menu()
@@ -220,6 +252,84 @@ class Level:
         self.display_surface.fill((255,255,255))
         self.draw_text("Magestic Brawl", self.menu_font, (0,0,0), 150, 20)
         self.menu_buttons(state=self.game_state)
+
+    def character_select_screen(self):
+        if not self.char_buttons_p1:
+            button_width, button_height, button_gap = 100, 130, 15
+            # P1 buttons start at x=20 (left half), P2 at x=520 (right half)
+            p1_start_x, p2_start_x = 20, 520
+            button_y = 220  # below the "Player 1/2" labels
+
+            for char_index, char in enumerate(self.roster):
+                # Extract first idle frame (row 0, col 0) from sprite sheet as portrait
+                data = char["data"]
+                sprite_cell_width = data.cell_width if data.cell_width else data.size
+                portrait = char["sheet"].subsurface(0, 0, sprite_cell_width, data.size)
+
+                p1_x = p1_start_x + char_index * (button_width + button_gap)
+                p2_x = p2_start_x + char_index * (button_width + button_gap)
+
+                p1_btn = CharacterButton(portrait, char["name"], char_index, 1, button_width, button_height, (p1_x, button_y), 5)
+                p2_btn = CharacterButton(portrait, char["name"], char_index, 2, button_width, button_height, (p2_x, button_y), 5)
+                p1_btn.level = self
+                p2_btn.level = self
+                self.char_buttons_p1.append(p1_btn)
+                self.char_buttons_p2.append(p2_btn)
+
+        self.display_surface.fill((0, 0, 0))
+        self.draw_text("Select Character", self.menu_font, WHITE, 100, 20)
+        self.draw_text("Player 1", self.subtitle_font, RED, 20, 145)
+        self.draw_text("Player 2", self.subtitle_font, RED, SCREEN_WIDTH // 2 + 20, 145)
+
+        for btn in self.char_buttons_p1:
+            btn.draw(self.display_surface, self.game_state)
+            if btn.was_clicked:
+                self.p1_cursor = btn.char_index
+                self.p1_selection = btn.char_index
+                self.p1_confirmed = True
+                btn.was_clicked = False
+
+        for btn in self.char_buttons_p2:
+            btn.draw(self.display_surface, self.game_state)
+            if btn.was_clicked:
+                self.p2_cursor = btn.char_index
+                self.p2_selection = btn.char_index
+                self.p2_confirmed = True
+                btn.was_clicked = False
+
+        # Yellow border on the currently hovered character
+        p1_hovered = self.char_buttons_p1[self.p1_cursor]
+        p2_hovered = self.char_buttons_p2[self.p2_cursor]
+        pygame.draw.rect(self.display_surface, YELLOW, p1_hovered.top_rect, 3, border_radius=12)
+        pygame.draw.rect(self.display_surface, YELLOW, p2_hovered.top_rect, 3, border_radius=12)
+
+        # Green border + "READY" on confirmed selection
+        if self.p1_confirmed:
+            p1_confirmed_btn = self.char_buttons_p1[self.p1_selection]
+            pygame.draw.rect(self.display_surface, (0, 220, 0), p1_confirmed_btn.top_rect, 3, border_radius=12)
+            self.draw_text("READY", self.menu_buttons_font, (0, 220, 0), p1_confirmed_btn.top_rect.x, p1_confirmed_btn.top_rect.bottom + 4)
+
+        if self.p2_confirmed:
+            p2_confirmed_btn = self.char_buttons_p2[self.p2_selection]
+            pygame.draw.rect(self.display_surface, (0, 220, 0), p2_confirmed_btn.top_rect, 3, border_radius=12)
+            self.draw_text("READY", self.menu_buttons_font, (0, 220, 0), p2_confirmed_btn.top_rect.x, p2_confirmed_btn.top_rect.bottom + 4)
+
+        # Once both confirmed, spawn fighters and start
+        if self.p1_confirmed and self.p2_confirmed:
+            self._spawn_fighters()
+            self.p1_confirmed = False
+            self.p2_confirmed = False
+            self.game_state = "fighting"
+            self.playing = True
+            self.intro_count = 3
+            self.last_count_update = pygame.time.get_ticks()
+                
+
+    def _spawn_fighters(self):
+        p1 = self.roster[self.p1_selection]
+        p2 = self.roster[self.p2_selection]
+        self.fighter_1 = Fighter2(1, 200, 280, False, p1["data"], p1["sheet"], p1["steps"], p1["audio"], P1_CONTROLS)
+        self.fighter_2 = Fighter2(2, 700, 280, True,  p2["data"], p2["sheet"], p2["steps"], p2["audio"], P2_CONTROLS)
 
     def pause_menu(self):
         self.menu_buttons(state=self.game_state)
