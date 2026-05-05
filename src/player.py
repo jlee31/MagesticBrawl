@@ -197,7 +197,7 @@ class Fighter2():
         )
 
         # Debug: Draw attack hitbox
-        # pygame.draw.rect(surface, (255, 0, 0), attacking_rect, 2)
+        pygame.draw.rect(surface, (255, 0, 0), attacking_rect, 2)
         
         # Get target mask and position
         target_mask = target.getMask()
@@ -241,7 +241,7 @@ class Fighter2():
         if type == 1:
             self.health -= 10 * 0.3
         if type == 2:
-            self.health -= 10
+            self.health -= 50 #50 for testing, 10 regular
                 
     def draw(self, surface, shake_offset=(0, 0)):
         img = pygame.transform.flip(self.image, self.flip, False)
@@ -253,7 +253,7 @@ class Fighter2():
         surface.blit(img, (draw_x, draw_y))
         
         # Draw hitbox (for debugging)
-        # pygame.draw.rect(surface, (255, 255, 255), self.rect, 2)
+        pygame.draw.rect(surface, (255, 255, 255), self.rect, 2)
         
         # Draw Mask
         if self.mask_image:
@@ -328,7 +328,6 @@ class Fighter2():
             self.update_time = pygame.time.get_ticks()
     
     def updateMask(self):
-        """Update the collision mask for the current frame"""
         if self.image is not None:
             # Create mask from current frame image
             self.player_mask = pygame.mask.from_surface(self.image)
@@ -336,13 +335,9 @@ class Fighter2():
             # self.mask_image = self.player_mask.to_surface(setcolor=(255, 0, 0, 128), unsetcolor=(0, 0, 0, 0))
     
     def getMask(self):
-        """Get the current collision mask"""
         return self.player_mask
 
     def _rectOverlapsMask(self, rect, mask, mask_x, mask_y):
-        """
-        FIXED: Proper collision check between rectangle and mask
-        """
         # Create a mask from the attacking rectangle
         attack_mask = pygame.mask.Mask((rect.width, rect.height))
         attack_mask.fill()  # Fill the entire attack mask
@@ -357,7 +352,6 @@ class Fighter2():
         # If collision occurred, return the center of the attack rectangle
         if collision_point:
             return (rect.centerx, rect.centery)
-        
-        # Return None if no collision
+        # No collision occured
         return None
 
