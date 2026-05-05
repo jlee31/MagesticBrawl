@@ -18,6 +18,7 @@ class Fighter2():
         self.offset = data.offset
         self.player_speed = data.speed
         self.player_jump_height = data.jump_height
+        self.cell_width = data.cell_width if data.cell_width else data.size
         self.attack_one_data = data.attack_1_range
         self.attack_two_data = data.attack_2_range
         self.attack_one_offset = data.attack_offset
@@ -82,11 +83,11 @@ class Fighter2():
         for y, animation in enumerate(sprite_animation_sheet):
             temp_img_list = []
             for x in range(animation):
-                temp_img = sprite_sheet.subsurface(x * self.size, y * self.size, self.size, self.size)
-                scaled_image = pygame.transform.scale(temp_img, (self.size * self.image_scale, self.size * self.image_scale))
+                temp_img = sprite_sheet.subsurface(x * self.cell_width, y * self.size, self.cell_width, self.size)
+                scaled_image = pygame.transform.scale(temp_img, (self.cell_width * self.image_scale, self.size * self.image_scale))
                 temp_img_list.append(scaled_image)
             animation_list.append(temp_img_list)
-        
+
         return animation_list
     
     def move(self, target):
