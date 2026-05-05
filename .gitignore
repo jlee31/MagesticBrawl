@@ -1,3 +1,7 @@
 __pycache__/
 *.pyc
-*.pyo
+.DS_Store
+.vscode/
+venv/
+*.egg-info/
+.claude
