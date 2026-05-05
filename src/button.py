@@ -8,6 +8,7 @@ if TYPE_CHECKING:
 import pygame
 pygame.font.init()
 gui_font = pygame.font.Font("assets/fonts/turok.ttf",30)
+char_name_font = pygame.font.Font("assets/fonts/turok.ttf", 13)
 
 class Button:
 	def __init__(self,text,width,height,pos,elevation):
@@ -65,12 +66,8 @@ class Button:
 class PlayButton(Button):
     def handle_button_action(self, game_state):
         if game_state == "main_screen":
-            print("Starting game...")
             assert self.level
-            self.level.game_state = "fighting"
-            self.level.playing = True
-            self.level.intro_count = 3
-            self.level.last_count_update = pygame.time.get_ticks()
+            self.level.game_state = "character_select"
 
 class ResumeButton(Button):
     def handle_button_action(self, game_state):
@@ -117,3 +114,27 @@ class ScreenShakeToggle(Button):
         if game_state == "settings":
             assert self.level
             self.level.screen_shake_enabled = not self.level.screen_shake_enabled
+            
+class CharacterButton(Button):
+    def __init__(self, image, char_name, char_index, player_num, width, height, pos, elevation):
+        super().__init__("", width, height, pos, elevation)  # "" suppresses base text
+        self.char_name = char_name
+        self.char_index = char_index
+        self.player_num = player_num
+        self.was_clicked = False
+        # leave 22px at the bottom for the name label
+        self.portrait = pygame.transform.scale(image, (width - 8, height - 26))
+
+    def draw(self, screen, game_state):
+        super().draw(screen, game_state)
+        # portrait sits at the top of the button
+        portrait_rect = self.portrait.get_rect(midtop=(self.top_rect.centerx, self.top_rect.top + 4))
+        screen.blit(self.portrait, portrait_rect)
+        # name label sits at the bottom
+        name_surf = char_name_font.render(self.char_name, True, (255, 255, 255))
+        name_rect = name_surf.get_rect(centerx=self.top_rect.centerx, bottom=self.top_rect.bottom - 4)
+        screen.blit(name_surf, name_rect)
+
+    def handle_button_action(self, game_state):
+        if game_state == "character_select":
+            self.was_clicked = True
