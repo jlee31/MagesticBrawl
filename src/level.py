@@ -5,9 +5,11 @@ from math import sin
 
 from src.settings import SCREEN_WIDTH, SCREEN_HEIGHT
 from src.player import Fighter2
-from src.button import PlayButton, ResumeButton, SettingsButton, BackButton, ExitButton, VolumeButton, ScreenShakeToggle, CharacterButton
+from src.button import PlayButton, ResumeButton, SettingsButton, BackButton, ExitButton, VolumeButton, ScreenShakeToggle, CharacterButton, AIButton
 from src.playerData import WARRIOR_DATA, SORCERER_DATA, P1_CONTROLS, P2_CONTROLS, OLD_WIZARD_DATA, HUNTRESS_DATA
 from src.assets import Assets
+
+from src.AIController import AIController
 
 YELLOW = (255,255,0)
 RED = (255,0,0)
@@ -23,6 +25,12 @@ class Level:
         self.display_surface = pygame.display.get_surface()
         self.game_states = ["main_screen", "character_select","pause", "loading", "fighting", "settings"]
         self.game_state = self.game_states[0]
+
+        # ai
+        self.ai = AIController()
+
+        self.p1_isHuman = True
+        self.p2_isHuman = True
 
         self.intro_count = 4
         self.last_count_update = pygame.time.get_ticks()
@@ -114,10 +122,12 @@ class Level:
         self.exit_btn = ExitButton("Quit", 200, 40, (middle,360), 5)
         self.volume_btn = VolumeButton("Volume", 200, 40, (middle,280), 5)
         self.back_btn = BackButton("Back", 200, 40, (middle,200), 5)
+        self.back_btn_character_select = BackButton("Back", 200, 40, (middle,SCREEN_HEIGHT - 60), 5)
         self.screen_shake_btn = ScreenShakeToggle("Shake: ON", 200, 40, (middle,440), 5)
+        self.ai_btn = AIButton(text="Toggle AI", width= 200, height= 40, pos= (775, 160), elevation= 5)
 
         # Set level reference for all buttons
-        for btn in [self.play_btn, self.pause_btn, self.settings_btn, self.exit_btn, self.volume_btn, self.back_btn, self.screen_shake_btn]:
+        for btn in [self.play_btn, self.pause_btn, self.settings_btn, self.exit_btn, self.volume_btn, self.back_btn, self.screen_shake_btn, self.back_btn_character_select, self.ai_btn]:
             btn.level = self
 
         # Sprite Groups
@@ -206,8 +216,13 @@ class Level:
                 self.display_surface.blit(text_surface, text_rect)
             else:
                 # Only move fighters when countdown is done
-                self.fighter_1.move(target=self.fighter_2)
-                self.fighter_2.move(target=self.fighter_1)
+                if self.p1_isHuman:
+                    self.fighter_1.move(target=self.fighter_2)
+                
+                if self.p2_isHuman:
+                    self.fighter_2.move(target=self.fighter_1)
+                else:
+                    self.ai.update(self.fighter_2, self.fighter_1)
 
         # Screen Shake
         for fighter in [self.fighter_1, self.fighter_2]:
@@ -323,6 +338,18 @@ class Level:
         self.draw_text("Player 1", self.subtitle_font, RED, 20, 145)
         self.draw_text("Player 2", self.subtitle_font, RED, SCREEN_WIDTH // 2 + 20, 145)
 
+        self.back_btn_character_select.draw(self.display_surface, self.game_state)
+        self.ai_btn.draw(self.display_surface, self.game_state)
+
+        if not self.p2_isHuman:
+            # Show that AI enabled
+            self.draw_text("AI ENABLED", self.subtitle_font, PURPLE, SCREEN_WIDTH - 250, SCREEN_HEIGHT - 100)
+            # then pick a random character
+            if not self.p2_confirmed:
+                decision = randint(0,3)
+                self.p2_selection = decision
+                self.p2_confirmed = True
+
         for btn in self.char_buttons_p1:
             btn.draw(self.display_surface, self.game_state)
             if btn.was_clicked:
@@ -373,6 +400,8 @@ class Level:
         p2 = self.roster[self.p2_selection]
         self.fighter_1 = Fighter2(1, 200, 280, False, p1["data"], p1["sheet"], p1["steps"], p1["audio"], P1_CONTROLS)
         self.fighter_2 = Fighter2(2, 700, 280, True,  p2["data"], p2["sheet"], p2["steps"], p2["audio"], P2_CONTROLS)
+
+        self.ai.enter_state("idle")
 
     def pause_menu(self):
         self.menu_buttons(state=self.game_state)
