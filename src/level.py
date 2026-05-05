@@ -1,6 +1,7 @@
 import pygame
 import sys
 from random import randint
+from math import sin
 
 from src.settings import SCREEN_WIDTH, SCREEN_HEIGHT
 from src.player import Fighter2
@@ -246,6 +247,12 @@ class Level:
                 print(self.score)
             
         else:
+            # Round Complete is True
+
+            elapsed = pygame.time.get_ticks() - self.round_over_time
+            pulse = int((sin(elapsed / 200) + 1) / 2 * 255)
+            colour = (pulse, 0, 0)  # pulses between black (0,0,0) and red (255,0,0)
+            self.draw_text(text="K.O.", font=self.menu_font, colour=colour, x=SCREEN_WIDTH // 2 - 75, y= 100)
 
             if self.score[0] == 3 or self.score[1] == 3:
                 self.display_surface.blit(self.victory_image, (int(SCREEN_WIDTH / 2 - self.victory_width / 2), 250))
@@ -361,7 +368,6 @@ class Level:
             self.intro_count = 3
             self.last_count_update = pygame.time.get_ticks()
                 
-
     def _spawn_fighters(self):
         p1 = self.roster[self.p1_selection]
         p2 = self.roster[self.p2_selection]
