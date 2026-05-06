@@ -149,3 +149,8 @@ class AIButton(Button):
         print("P2 is now AI")
         self.level.p2_isHuman = not self.level.p2_isHuman
 
+class MenuButton(Button):
+     def handle_button_action(self, game_state):
+        print("Going to Main Menu")
+        assert self.level
+        self.level.game_state = "main_screen"
