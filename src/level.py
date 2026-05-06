@@ -5,7 +5,7 @@ from math import sin
 
 from src.settings import SCREEN_WIDTH, SCREEN_HEIGHT
 from src.player import Fighter2
-from src.button import PlayButton, ResumeButton, SettingsButton, BackButton, ExitButton, VolumeButton, ScreenShakeToggle, CharacterButton, AIButton
+from src.button import PlayButton, ResumeButton, SettingsButton, BackButton, ExitButton, VolumeButton, ScreenShakeToggle, CharacterButton, AIButton, MenuButton
 from src.playerData import WARRIOR_DATA, SORCERER_DATA, P1_CONTROLS, P2_CONTROLS, OLD_WIZARD_DATA, HUNTRESS_DATA
 from src.assets import Assets
 
@@ -118,6 +118,7 @@ class Level:
         middle = SCREEN_WIDTH / 2 - 100
         self.play_btn = PlayButton("Start", 200, 40, (middle,200), 5)
         self.pause_btn = ResumeButton("Resume", 200, 40, (middle,200), 5)
+        self.menu_button = MenuButton("Main Menu", 200, 40, (middle, 120), 5)
         self.settings_btn = SettingsButton("Settings", 200, 40, (middle,280), 5)
         self.exit_btn = ExitButton("Quit", 200, 40, (middle,360), 5)
         self.volume_btn = VolumeButton("Volume", 200, 40, (middle,280), 5)
@@ -127,7 +128,7 @@ class Level:
         self.ai_btn = AIButton(text="Toggle AI", width= 200, height= 40, pos= (775, 160), elevation= 5)
 
         # Set level reference for all buttons
-        for btn in [self.play_btn, self.pause_btn, self.settings_btn, self.exit_btn, self.volume_btn, self.back_btn, self.screen_shake_btn, self.back_btn_character_select, self.ai_btn]:
+        for btn in [self.play_btn, self.pause_btn, self.settings_btn, self.exit_btn, self.volume_btn, self.back_btn, self.screen_shake_btn, self.back_btn_character_select, self.ai_btn, self.menu_button]:
             btn.level = self
 
         # Sprite Groups
@@ -420,6 +421,7 @@ class Level:
             if state == "pause":
                 self.pause_btn.draw(self.display_surface, self.game_state)
                 self.settings_btn.draw(self.display_surface, self.game_state)
+                self.menu_button.draw(self.display_surface, self.game_state)
                 self.exit_btn.draw(self.display_surface, self.game_state)
         elif state == "settings":
             self.back_btn.draw(self.display_surface, self.game_state)
