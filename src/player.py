@@ -215,6 +215,7 @@ class Fighter2():
                     # Apply Damage
                     if target.is_blocking:
                         target.takeDamage(1)
+                        target.is_hit = True
                     else:
                         target.takeDamage(2)
                         target.is_hit = True
