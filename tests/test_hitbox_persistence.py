@@ -1,15 +1,13 @@
 import os
 import pygame
 import unittest.mock as mock
+from src.playerData import WARRIOR_DATA, P1_CONTROLS, P2_CONTROLS
 
 os.environ["SDL_VIDEODRIVER"] = "dummy"
 os.environ["SDL_AUDIODRIVER"] = "dummy"
 
 pygame.init()
 pygame.display.set_mode((960, 500))
-
-from src.playerData import WARRIOR_DATA, P1_CONTROLS, P2_CONTROLS
-
 
 def make_fighter(player_num, x, y, flip, controls):
     from src.player import Fighter2
