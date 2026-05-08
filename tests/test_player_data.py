@@ -1,8 +1,8 @@
 import os
+from src.playerData import HUNTRESS_DATA, OLD_WIZARD_DATA
+
 os.environ["SDL_VIDEODRIVER"] = "dummy"
 os.environ["SDL_AUDIODRIVER"] = "dummy"
-
-from src.playerData import HUNTRESS_DATA, OLD_WIZARD_DATA
 
 MIN_ATTACK_RANGE = 100  # minimum pixels for a hitbox to be functional
 
