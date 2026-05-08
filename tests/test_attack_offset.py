@@ -2,7 +2,6 @@ import os
 os.environ["SDL_VIDEODRIVER"] = "dummy"
 os.environ["SDL_AUDIODRIVER"] = "dummy"
 
-import pytest
 from src.playerData import CHARACTER_DATA, WARRIOR_DATA, SORCERER_DATA, HUNTRESS_DATA, OLD_WIZARD_DATA
 
 
