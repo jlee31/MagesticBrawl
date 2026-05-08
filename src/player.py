@@ -22,6 +22,7 @@ class Fighter2():
         self.attack_one_data = data.attack_1_range
         self.attack_two_data = data.attack_2_range
         self.attack_one_offset = data.attack_offset
+        self.attack_two_offset = data.attack_2_offset
         
         # Animation system
         self.animation_list = self.loadImages(sprite_sheet, sprite_animation_sheet)
@@ -120,10 +121,10 @@ class Fighter2():
             # Attacking
             if key[self.controls["attack1"]]:
                 self.attack_type = 1
-                self.attack(pygame.display.get_surface(), target)
+                self.attack()
             if key[self.controls["attack2"]]:
                 self.attack_type = 2
-                self.attack(pygame.display.get_surface(), target)
+                self.attack()
 
             # Blocking
             if key[self.controls["block"]]:
@@ -162,79 +163,72 @@ class Fighter2():
             self.rect.x = max(0, min(SCREEN_WIDTH - self.rect.width, self.rect.x))
             self.knockback_frames -= 1
    
-    def attack(self, surface, target):
+    def attack(self):
         if self.attack_type == 2 and self.heavy_attack_cooldown < self.heavy_attack_max_cooldown:
             return
-
-        # Only allow attack if not already attacking and cooldown is ready
         if self.attack_cooldown == 0 and not self.attacking:
-            self.attacking = True
-            # Set a short cooldown to prevent immediate re-attack
-            self.attack_cooldown = 50
-            if self.attack_type == 2:
-                self.heavy_attack_cooldown = 0
-            self.swing_sound.play()
-            
-            # Generate new attack ID and reset hit tracking
-            self.current_attack_id += 1
-            self.attack_hit_targets.clear()
+            self._start_attack()
 
-        # Create attack hitbox rectangle
+    def _start_attack(self):
+        self.attacking = True
+        self.attack_cooldown = 50
+        if self.attack_type == 2:
+            self.heavy_attack_cooldown = 0
+        self.swing_sound.play()
+        self.current_attack_id += 1
+        self.attack_hit_targets.clear()
+
+    def check_attack_hit(self, surface, target):
+        if not self.attacking:
+            return
+
         if self.attack_type == 1:
             attack_data = self.attack_one_data
         elif self.attack_type == 2:
             attack_data = self.attack_two_data
         else:
-            return  # No valid attack type
-       
+            return
+
         attack_width, attack_height = attack_data
+        offset = self.attack_one_offset if self.attack_type == 1 else self.attack_two_offset
         attacking_rect = pygame.Rect(
-                self.rect.centerx - (2 * self.rect.width * self.flip + self.attack_one_offset[0]),
-                self.rect.y - self.attack_one_offset[1],
+                self.rect.centerx - (2 * self.rect.width * self.flip + offset[0]),
+                self.rect.y - offset[1],
                 attack_width,
                 attack_height
         )
 
-        # Debug: Draw attack hitbox
         pygame.draw.rect(surface, (255, 0, 0), attacking_rect, 2)
-        
-        # Get target mask and position
+
         target_mask = target.getMask()
         if target_mask:
-            # Calculate target's actual position on screen (accounting for offset)
             target_draw_x = target.rect.x - (target.offset[0] * target.image_scale)
             target_draw_y = target.rect.y - (target.offset[1] * target.image_scale)
-            
-            # Check if the attacking rectangle overlaps with the target mask
+
             hit_point = self.rectOverlapMask(attacking_rect, target_mask, target_draw_x, target_draw_y)
-            
+
             if hit_point:
-                # Check if this target has already been hit by the current attack
                 target_id = id(target)
                 if target_id not in self.attack_hit_targets:
-                    # Apply Damage
                     if target.is_blocking:
                         target.takeDamage(1)
                         target.is_hit = True
                     else:
                         target.takeDamage(2)
                         target.is_hit = True
-                    
+
                     if self.attack_type == 2:
                         self.screen_shake_trigger = True
-                
+
                     spawn_exploding_particles(n=1000, particle_group=self.particle_group, pos=hit_point)
-                    
-                    # Apply Knockback
+
                     knockback = -15 if self.flip else 15
                     target.knockback_velocity = knockback
                     target.knockback_frames = 5
 
-                    # Apply Freeze
                     self.hitstop_frames = 15
                     target.hitstop_frames = 15
 
-                    # Mark this target as hit by the current attack
                     self.attack_hit_targets.add(target_id)
 
     def takeDamage(self, type):

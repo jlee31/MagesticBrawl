@@ -52,7 +52,7 @@ class AIController:
             fighter.is_running = False
             attack_type = randint(1,2)
             fighter.attack_type = attack_type
-            fighter.attack(pygame.display.get_surface(), target)
+            fighter.attack()
             self.enter_state("idle")
 
         elif self.state == "retreat":
