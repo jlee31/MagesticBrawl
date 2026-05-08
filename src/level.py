@@ -225,6 +225,9 @@ class Level:
                 else:
                     self.ai.update(self.fighter_2, self.fighter_1)
 
+                self.fighter_1.check_attack_hit(self.display_surface, self.fighter_2)
+                self.fighter_2.check_attack_hit(self.display_surface, self.fighter_1)
+
         # Screen Shake
         for fighter in [self.fighter_1, self.fighter_2]:
             if fighter.screen_shake_trigger:
