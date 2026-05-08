@@ -1,9 +1,8 @@
 import os
-os.environ["SDL_VIDEODRIVER"] = "dummy"
-os.environ["SDL_AUDIODRIVER"] = "dummy"
-
 from src.playerData import CHARACTER_DATA, WARRIOR_DATA, SORCERER_DATA, HUNTRESS_DATA, OLD_WIZARD_DATA
 
+os.environ["SDL_VIDEODRIVER"] = "dummy"
+os.environ["SDL_AUDIODRIVER"] = "dummy"
 
 def test_character_data_has_attack_2_offset_field():
     """CHARACTER_DATA must expose a separate offset for attack2."""

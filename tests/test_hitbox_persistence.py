@@ -1,9 +1,9 @@
 import os
-os.environ["SDL_VIDEODRIVER"] = "dummy"
-os.environ["SDL_AUDIODRIVER"] = "dummy"
-
 import pygame
 import unittest.mock as mock
+
+os.environ["SDL_VIDEODRIVER"] = "dummy"
+os.environ["SDL_AUDIODRIVER"] = "dummy"
 
 pygame.init()
 pygame.display.set_mode((960, 500))
