@@ -14,6 +14,12 @@ class CHARACTER_DATA:
     attack_offset: list
     cell_width: int = 0  # 0 means square (same as size)
     attack_2_offset: list = field(default_factory=lambda: [0, 0])
+    # Frame indices (into the attack animation) on which the hitbox is
+    # live. Empty list = every attack frame is active (legacy behaviour).
+    # Deterministic by design: hit outcome depends only on frame_index,
+    # never on per-pixel sprite content or wall-clock timing.
+    attack_1_active_frames: list = field(default_factory=list)
+    attack_2_active_frames: list = field(default_factory=list)
 
 P1_CONTROLS = {"left": K_a, "right": K_d, "jump": K_w, "attack1": K_r, "attack2": K_t, "block": K_s}
 P2_CONTROLS = {"left": K_j, "right": K_l, "jump": K_i, "attack1": K_o, "attack2": K_p, "block": K_k}
@@ -36,12 +42,19 @@ SORCERER_SPEED = 5
 SORCERER_JUMP_HEIGHT = 30
 SORCERER_ATTACK1_RANGE = [100,300]
 SORCERER_ATTACK2_RANGE = [250,400]
-SORCERER_ATTACK_OFFSET = [100,200]
-SORCERER_DATA = CHARACTER_DATA(SORCERER_SIZE, SORCERER_SCALE, SORCERER_OFFSET, SORCERER_SPEED, SORCERER_JUMP_HEIGHT, SORCERER_ATTACK1_RANGE, SORCERER_ATTACK2_RANGE, SORCERER_ATTACK_OFFSET)
+SORCERER_ATTACK_OFFSET = [0,0]
+# attack1 = 8 frames (sorcerer_animation_steps[3]); the blast is visible
+# ~frames 5-6. Tune these here if the active window feels off.
+SORCERER_ATTACK1_ACTIVE_FRAMES = [5, 6]
+SORCERER_ATTACK2_ACTIVE_FRAMES = [5, 6]
+SORCERER_DATA = CHARACTER_DATA(SORCERER_SIZE, SORCERER_SCALE, SORCERER_OFFSET, SORCERER_SPEED, SORCERER_JUMP_HEIGHT, SORCERER_ATTACK1_RANGE, SORCERER_ATTACK2_RANGE, SORCERER_ATTACK_OFFSET, attack_1_active_frames=SORCERER_ATTACK1_ACTIVE_FRAMES, attack_2_active_frames=SORCERER_ATTACK2_ACTIVE_FRAMES)
 # Huntress
 HUNTRESS_SIZE = 150
 HUNTRESS_SCALE = 4
-HUNTRESS_OFFSET = [72, 56]
+# Centred on the idle-frame opaque bbox (measured from huntress.png).
+# Best-effort: the fixed 80px box is narrower than the ~128px scaled
+# body and this bbox includes the spear. Proper fix tracked in issue.
+HUNTRESS_OFFSET = [67, 52]
 HUNTRESS_SPEED = 12
 HUNTRESS_JUMP_HEIGHT = 30
 HUNTRESS_ATTACK1_RANGE = [200,200]
@@ -52,7 +65,10 @@ HUNTRESS_DATA = CHARACTER_DATA(HUNTRESS_SIZE, HUNTRESS_SCALE, HUNTRESS_OFFSET, H
 OLD_WIZARD_SIZE = 190
 OLD_WIZARD_CELL_WIDTH = 231
 OLD_WIZARD_SCALE = 2
-OLD_WIZARD_OFFSET = [72, 56]
+# Centred on the idle-frame opaque bbox (measured from old-wizard.png).
+# Best-effort: the fixed 80px box is narrower than the ~114px scaled
+# body and this bbox includes the staff. Proper fix tracked in issue.
+OLD_WIZARD_OFFSET = [90, 51]
 OLD_WIZARD_SPEED = 8
 OLD_WIZARD_JUMP_HEIGHT = 30
 OLD_WIZARD_ATTACK1_RANGE = [200,150]

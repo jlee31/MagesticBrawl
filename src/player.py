@@ -23,6 +23,8 @@ class Fighter2():
         self.attack_two_data = data.attack_2_range
         self.attack_one_offset = data.attack_offset
         self.attack_two_offset = data.attack_2_offset
+        self.attack_one_active_frames = data.attack_1_active_frames
+        self.attack_two_active_frames = data.attack_2_active_frames
         
         # Animation system
         self.animation_list = self.loadImages(sprite_sheet, sprite_animation_sheet)
@@ -48,7 +50,11 @@ class Fighter2():
         self.is_blocking = False
         
         # Combat system
+        # attack_type is a per-frame keypress signal (reset to 0 every
+        # move()). active_attack_type persists for the whole swing so
+        # hit detection works on the active frames, not just frame 0.
         self.attack_type = 0
+        self.active_attack_type = 0
         self.attack_cooldown = 0
         self.health = 100
         self.heavy_attack_cooldown = 180
@@ -178,6 +184,9 @@ class Fighter2():
 
     def _start_attack(self):
         self.attacking = True
+        # Capture the attack type now (keypress frame); attack_type gets
+        # cleared next frame, so the swing relies on this persistent copy.
+        self.active_attack_type = self.attack_type
         self.attack_cooldown = 50
         if self.attack_type == 2:
             self.heavy_attack_cooldown = 0
@@ -189,54 +198,76 @@ class Fighter2():
         if not self.attacking:
             return
 
-        if self.attack_type == 1:
+        if self.active_attack_type == 1:
             attack_data = self.attack_one_data
-        elif self.attack_type == 2:
+            active_frames = self.attack_one_active_frames
+        elif self.active_attack_type == 2:
             attack_data = self.attack_two_data
+            active_frames = self.attack_two_active_frames
         else:
             return
 
+        # Hitbox is live only on the designated attack frames. An empty
+        # list means "every attack frame" (legacy characters). This gate
+        # is the heart of RL-stable hit detection: the outcome depends
+        # only on (attack_type, frame_index), never on sprite pixels or
+        # wall-clock timing.
+        if self.action not in (3, 4):
+            return
+        if active_frames and self.frame_index not in active_frames:
+            return
+
         attack_width, attack_height = attack_data
-        offset = self.attack_one_offset if self.attack_type == 1 else self.attack_two_offset
-        attacking_rect = pygame.Rect(
-                self.rect.centerx - (2 * self.rect.width * self.flip + offset[0]),
-                self.rect.y - offset[1],
-                attack_width,
-                attack_height
-        )
+        offset = self.attack_one_offset if self.active_attack_type == 1 else self.attack_two_offset
+
+        # Anchor the hitbox at the attacker's FRONT EDGE, extending away
+        # from the body in the facing direction. This makes attack_*_range
+        # mean actual forward reach (no half-box wasted inside the body).
+        # offset[0] adds extra forward reach; offset[1] nudges it
+        # vertically (positive = down).
+        if self.flip:  # facing left -> extend left from the left edge
+            attack_x = self.rect.left - attack_width - offset[0]
+        else:           # facing right -> extend right from the right edge
+            attack_x = self.rect.right + offset[0]
+        attack_y = self.rect.centery - attack_height // 2 + offset[1]
+
+        attacking_rect = pygame.Rect(attack_x, attack_y, attack_width, attack_height)
 
         pygame.draw.rect(surface, (255, 0, 0), attacking_rect, 2)
 
-        target_mask = target.getMask()
-        if target_mask:
-            target_draw_x = target.rect.x - (target.offset[0] * target.image_scale)
-            target_draw_y = target.rect.y - (target.offset[1] * target.image_scale)
+        # Deterministic rect-vs-rect collision: O(1), reproducible, and
+        # independent of per-pixel sprite content. No mask overlap.
+        if not attacking_rect.colliderect(target.rect):
+            return
 
-            hit_point = self.rectOverlapMask(attacking_rect, target_mask, target_draw_x, target_draw_y)
+        target_id = id(target)
+        if target_id in self.attack_hit_targets:
+            return
 
-            if hit_point:
-                target_id = id(target)
-                if target_id not in self.attack_hit_targets:
-                    if target.is_blocking:
-                        target.takeDamage(1)
-                        target.is_hit = True
-                    else:
-                        target.takeDamage(2)
-                        target.is_hit = True
+        # Hit point = centre of the overlap region, so particles spawn at
+        # the contact area (deterministic, no head-spawn fallback).
+        hit_point = attacking_rect.clip(target.rect).center
 
-                    if self.attack_type == 2:
-                        self.screen_shake_trigger = True
+        if target.is_blocking:
+            target.takeDamage(1)
+            target.is_hit = True
+        else:
+            target.takeDamage(2)
+            target.is_hit = True
 
-                    spawn_exploding_particles(n=1000, particle_group=self.particle_group, pos=hit_point)
+        if self.active_attack_type == 2:
+            self.screen_shake_trigger = True
 
-                    knockback = -15 if self.flip else 15
-                    target.knockback_velocity = knockback
-                    target.knockback_frames = 5
+        spawn_exploding_particles(n=1000, particle_group=self.particle_group, pos=hit_point)
 
-                    self.hitstop_frames = 15
-                    target.hitstop_frames = 15
+        knockback = -15 if self.flip else 15
+        target.knockback_velocity = knockback
+        target.knockback_frames = 5
 
-                    self.attack_hit_targets.add(target_id)
+        self.hitstop_frames = 15
+        target.hitstop_frames = 15
+
+        self.attack_hit_targets.add(target_id)
 
     def takeDamage(self, type):
         if type == 1:
@@ -273,9 +304,9 @@ class Fighter2():
         elif self.is_hit:
             self.update_action(5)  # Hit
         elif self.attacking:
-            if self.attack_type == 1:
+            if self.active_attack_type == 1:
                 self.update_action(3)  # Attack 1
-            elif self.attack_type == 2:
+            elif self.active_attack_type == 2:
                 self.update_action(4)  # Attack 2
         elif self.is_jumping:
             self.update_action(2)  # Jump
@@ -310,6 +341,7 @@ class Fighter2():
                 self.frame_index = 0
             if self.action in [3, 4]:  # Attack animations
                 self.attacking = False
+                self.active_attack_type = 0
                 # Reset cooldown when attack animation completes
                 self.attack_cooldown = 0
                 # NEW: Reset hit tracking when attack animation ends
@@ -347,12 +379,15 @@ class Fighter2():
         offset_x = rect.x - mask_x
         offset_y = rect.y - mask_y
         
-        # Use pygame's built-in mask collision detection
+        # Use pygame's built-in mask collision detection.
+        # overlap() returns the collision point in the target mask's
+        # local coordinate space (or None if there is no overlap).
         collision_point = mask.overlap(attack_mask, (offset_x, offset_y))
-        
-        # If collision occurred, return the center of the attack rectangle
+
+        # Convert the local collision point back to screen coordinates so
+        # particles spawn at the actual pixel that was hit.
         if collision_point:
-            return (rect.centerx, rect.centery)
+            return (mask_x + collision_point[0], mask_y + collision_point[1])
         # No collision occured
         return None
 

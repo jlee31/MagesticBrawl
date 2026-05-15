@@ -34,9 +34,12 @@ def test_hit_lands_mid_animation():
     attacker = make_fighter(1, 200, 280, False, P1_CONTROLS)
     target = make_fighter(2, 350, 280, True, P2_CONTROLS)
 
-    # Simulate mid-attack state (as if the attack started a few frames ago)
+    # Simulate mid-attack state (as if the attack started a few frames ago).
+    # active_attack_type is the persistent swing type (attack_type itself
+    # is back to 0 by now in the real loop).
     attacker.attacking = True
-    attacker.attack_type = 1
+    attacker.attack_type = 0
+    attacker.active_attack_type = 1
     attacker.action = 3       # attack1 animation index
     attacker.frame_index = 3  # mid-animation, not frame 0
 
@@ -57,7 +60,8 @@ def test_same_attack_cannot_hit_twice():
     target = make_fighter(2, 350, 280, True, P2_CONTROLS)
 
     attacker.attacking = True
-    attacker.attack_type = 1
+    attacker.attack_type = 0
+    attacker.active_attack_type = 1
     attacker.action = 3
     attacker.frame_index = 2
 
