@@ -28,52 +28,57 @@ class AIController:
             self.enter_state("retreat")
             elapsed = pygame.time.get_ticks() - self.state_timer  # now reflects new state
 
+        # Virtual inputs - same {action: bool} shape a human's keyboard
+        # produces. The AI fills these in based on state, then drives the
+        # fighter through move() so it gets gravity, flip, bounds clamping.
+        virtual_keys = {
+            "left": False,
+            "right": False,
+            "jump": False,
+            "attack1": False,
+            "attack2": False,
+            "block": False,
+        }
+
         if self.state == "idle":
-            fighter.is_running = False
             if elapsed > self.idle_duration:
                 self.enter_state("approach")
                 self.idle_duration = randint(500,2000)
 
         elif self.state == "approach":
             distance = target.rect.x - fighter.rect.x
-            fighter.flip = distance < 0
             if abs(distance) < 200:
                 self.enter_state("attack")
-
-            if distance > 200:
-                fighter.rect.x += 10
-                fighter.is_running = True
-
-            if distance < -200:
-                fighter.rect.x -= 10
-                fighter.is_running = True
+            elif distance > 0:
+                virtual_keys["right"] = True
+            else:
+                virtual_keys["left"] = True
 
         elif self.state == "attack":
-            fighter.is_running = False
-            attack_type = randint(1,2)
-            fighter.attack_type = attack_type
-            fighter.attack()
+            if randint(1, 2) == 1:
+                virtual_keys["attack1"] = True
+            else:
+                virtual_keys["attack2"] = True
             self.enter_state("idle")
 
         elif self.state == "retreat":
             distance = target.rect.x - fighter.rect.x
-            fighter.flip = distance < 0
+            # Move away from the target
             if distance < 0:
-                fighter.rect.x += 10
-                fighter.is_running = True
-
-            if distance > 0:
-                fighter.rect.x -= 10
-                fighter.is_running = True
+                virtual_keys["right"] = True
+            else:
+                virtual_keys["left"] = True
 
             if elapsed > 500:
                 self.enter_state("idle")
 
         elif self.state == "jump":
-            pass
+            virtual_keys["jump"] = True
 
         else:
             self.enter_state("idle")
+
+        fighter.move(target, virtual_keys=virtual_keys)
 
     def enter_state(self, state): # possible states: idle, approach, attack, jump, retreat
         self.state = state

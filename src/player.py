@@ -91,7 +91,7 @@ class Fighter2():
 
         return animation_list
     
-    def move(self, target):
+    def move(self, target, virtual_keys=None):
         SPEED = 10
         GRAVITY = 2
         dx = 0
@@ -100,34 +100,41 @@ class Fighter2():
         self.is_blocking = False
         self.attack_type = 0
 
-        key = pygame.key.get_pressed()
+        # Resolve inputs: real keyboard for humans, virtual_keys for the AI.
+        # Both produce the same {action: bool} shape so the rest of move()
+        # (gravity, flip, bounds clamping) runs identically for either.
+        if virtual_keys is None:
+            key = pygame.key.get_pressed()
+            pressed = {action: bool(key[keycode]) for action, keycode in self.controls.items()}
+        else:
+            pressed = virtual_keys
 
         if self.hitstop_frames > 0:
             self.hitstop_frames -= 1
             return
-        
+
         if self.attacking is False and not self.is_dead:
             # Movement
-            if key[self.controls["left"]]:
+            if pressed.get("left"):
                 dx = -SPEED
                 self.is_running = True
-            if key[self.controls["right"]]:
+            if pressed.get("right"):
                 dx = SPEED
                 self.is_running = True
-            if key[self.controls["jump"]] and not self.is_jumping:
+            if pressed.get("jump") and not self.is_jumping:
                 self.vel_y = -30
                 self.is_jumping = True
 
             # Attacking
-            if key[self.controls["attack1"]]:
+            if pressed.get("attack1"):
                 self.attack_type = 1
                 self.attack()
-            if key[self.controls["attack2"]]:
+            if pressed.get("attack2"):
                 self.attack_type = 2
                 self.attack()
 
             # Blocking
-            if key[self.controls["block"]]:
+            if pressed.get("block"):
                 self.is_blocking = True
 
         # Apply gravity
