@@ -91,8 +91,10 @@ class Level:
         # music / audio
 
         pygame.mixer.music.load("assets/audio/bg_music.mp3")
-        pygame.mixer.music.play(loops=-1)   
-        pygame.mixer.music.set_volume(0.3)  
+        self.music_toggled = True
+        if self.music_toggled:
+            pygame.mixer.music.play(loops=-1)
+            pygame.mixer.music.set_volume(0.3)
 
         # player audio files
         self.warrior_swing_audio = Assets.sound("assets/audio/sword_swing.wav")

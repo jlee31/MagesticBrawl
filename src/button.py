@@ -103,7 +103,13 @@ class ExitButton(Button):
 
 class VolumeButton(Button):
     def handle_button_action(self, game_state):
-        print("Volume clicked")
+        print("Music Toggled")
+        assert self.level
+        self.level.music_toggled = not self.level.music_toggled
+        if not self.level.music_toggled:
+            pygame.mixer.music.pause()
+        else:
+            pygame.mixer.music.unpause()
         
 class ScreenShakeToggle(Button):
     def draw(self, screen, game_state):
@@ -154,3 +160,10 @@ class MenuButton(Button):
         print("Going to Main Menu")
         assert self.level
         self.level.game_state = "main_screen"
+
+
+class toggleMusicButton(Button):
+    def handle_button_action(self, game_state):
+        print("Toggling Music")
+        assert self.level
+        self.level.music_toggled = False
